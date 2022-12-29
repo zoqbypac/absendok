@@ -21,8 +21,8 @@ class JadwalDokterImport implements ToCollection, WithStartRow
                     'kodedokter' => $row['0'],
                     'namadokter' => $row['1'],
                     'poliklinik' => $row['2'],
-                    'hari' =>  str_replace(' ', '', $row['3']),
-                    'waktu' =>  str_replace(' ', '', $row['4']),
+                    'hari' =>  ucwords(strtolower(str_replace(' ', '', $row['3']))),
+                    'waktu' =>  ucwords(strtolower(str_replace(' ', '', $row['4']))),
                 ],
                 [
                     'jam_mulai' => Date::excelToDateTimeObject($row['5']),
