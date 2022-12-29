@@ -16,7 +16,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                @if (in_array(Auth::user()->department, ['IT Support','Bagian Mutu dan Akreditasi','Direksi RS']))
+                @if (in_array(Auth::user()->department, ['IT Support','Bagian Mutu dan Akreditasi','Direksi RS','Bidang Keperawatan', 'Front Office Customer Service']))
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('jadwaldokter')" :active="request()->routeIs('jadwaldokter')">
                         {{ __('Jadwal Dokter') }}
@@ -27,6 +27,8 @@
                         {{ __('Mapping Poli') }}
                     </x-nav-link>
                 </div>
+                @endif
+                @if (in_array(Auth::user()->department, ['IT Support','Bagian Mutu dan Akreditasi','Direksi RS']))
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('rekapabsen')" :active="request()->routeIs('rekapabsen')">
                         {{ __('Absensi') }}
