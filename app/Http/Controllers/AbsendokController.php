@@ -46,8 +46,12 @@ class AbsendokController extends Controller
             }
         }
         
-        
-        $jadwal = Absensi::where([['kodedokter', Auth::user()->employee], ['tanggal',$tanggal_ini],['keterangan',null]])->get();
+        $jadwal = Absensi::where([
+                            ['kodedokter', Auth::user()->employee], 
+                            ['tanggal',$tanggal_ini],
+                            ['jam_masuk',null],
+                            ['keterangan',null]
+                            ])->get();
         $info = Info::orderBy('waktu')->whereDate('waktu', $tanggal_ini)->get();
         $cek = Absensi::where([
                 ['kodedokter', Auth::user()->employee],
@@ -61,7 +65,7 @@ class AbsendokController extends Controller
     public function absendok(Request $request)
     {
         if ($request->input('jadwal')) {
-            $jadwal = JadwalDokter::where('jadwalid', $request->input('jadwal'))->get();
+            $jadwal = Absensi::where('jadwalid', $request->input('jadwal'))->get();
 
             if (((strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal[0]->jam_mulai)) / 60) > 15) {
                 $status = 'Terlambat';
@@ -363,4 +367,12 @@ class AbsendokController extends Controller
 
         return redirect('mappingpoli');
     }
+    
+    public function infojadwaldokter()
+    {
+        $jadwal = JadwalDokter::where('kodedokter',Auth::user()->kodedokter)->get();
+        
+        return view('absendok.infojadwal',compact('jadwal'));
+    }
+
 }

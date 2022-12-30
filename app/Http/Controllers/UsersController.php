@@ -34,4 +34,9 @@ class UsersController extends Controller
 
         return redirect('daftaruser')->with('sukses', 'Data User Berhasil Diimport!');
     }
+    public function hapus($id)
+    {
+        User::where('id',$id)->delete();
+        return redirect('daftaruser')->with('sukses', 'User Berhasil dihapus!');
+    }
 }
