@@ -19,9 +19,9 @@ class UserImport implements ToCollection, WithStartRow
             User::updateOrCreate(
                 [
                     'employee' => $row['0'],
-                    'name' => $row['1'],
                 ],
                 [
+                    'name' => $row['1'],
                     'department' => $row['2'],
                     'password' => Hash::make($row['3']),
                 ]

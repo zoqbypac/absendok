@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/hapusjadwal/{id}', [AbsendokController::class, 'xhapusjadwal'])->name('xhapusjadwal');
     Route::get('/mappingpoli',[AbsendokController::class, 'mapping'])->name('mappingpoli');
     Route::post('/mappingstore', [AbsendokController::class, 'mappingstore'])->name('mappingstore');
+    Route::get('/viewjadwal', [AbsendokController::class, 'viewjadwal'])->name('viewjadwal');
 
    //User
     Route::get('/daftaruser',[UsersController::class, 'index'])->name('daftaruser');

@@ -368,11 +368,18 @@ class AbsendokController extends Controller
         return redirect('mappingpoli');
     }
     
-    public function infojadwaldokter()
+    public function viewjadwal()
     {
-        $jadwal = JadwalDokter::where('kodedokter',Auth::user()->kodedokter)->get();
+        $jadwal = JadwalDokter::where('kodedokter',Auth::user()->employee)->orderBy('jam_mulai','asc')->get();
+        $senin = $jadwal->where('hari','Senin');
+        $selasa = $jadwal->where('hari', 'Selasa');
+        $rabu = $jadwal->where('hari', 'Rabu');
+        $kamis = $jadwal->where('hari', 'Kamis');
+        $jumat = $jadwal->where('hari', 'Jumat');
+        $sabtu = $jadwal->where('hari', 'Sabtu');
+        $minggu = $jadwal->where('hari', 'Minggu');
         
-        return view('absendok.infojadwal',compact('jadwal'));
+        return view('absendok.viewjadwal',compact('jadwal','senin','selasa','rabu','kamis','jumat','sabtu','minggu'));
     }
 
 }
