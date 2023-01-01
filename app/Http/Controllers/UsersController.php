@@ -39,4 +39,25 @@ class UsersController extends Controller
         User::where('id',$id)->delete();
         return redirect('daftaruser')->with('sukses', 'User Berhasil dihapus!');
     }
+    public function userstore(Request $request)
+    {
+        $request->validate([
+            'employee' => 'required',
+            'name' => 'required',
+            'department' => 'required',
+            'password' => 'required',
+        ]);
+
+        $user = User::updateOrCreate(
+            [
+            'employee' => $request->employee,
+            ],[
+            'name' => $request->name,
+            'department' => $request->department,
+            'password' => Hash::make($request->password),
+            ]
+        );
+
+        return redirect('daftaruser')->with('sukses', 'Data User Berhasil ditambah!');
+    }
 }

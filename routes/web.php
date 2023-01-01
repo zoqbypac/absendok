@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
    //User
     Route::get('/daftaruser',[UsersController::class, 'index'])->name('daftaruser');
     Route::post('/userstore', [UsersController::class, 'store'])->name('userstore');
+    Route::post('/register', [UsersController::class, 'userstore'])->name('register');
     Route::get('/hapususer/{id}', [UsersController::class, 'hapus'])->name('hapususer');
     Route::post('/ubahpassword', [UsersController::class, 'ubahpassword'])->name('ubahpassword');
 });
