@@ -45,7 +45,21 @@ class AbsendokController extends Controller
                         ]);
             }
         }
-        
+
+        $cekabsenpulang = Absensi::where([
+            ['tanggal', '<', $tanggal_ini],
+            ['jam_masuk', '!=', null],
+            ['jam_pulang', null]
+        ])->get();
+        if ($cekabsenpulang->count() > 0) {
+            foreach ($cekabsenpulang as $jadwal) {
+                Absensi::where('absenid', $jadwal->absenid)
+                    ->update([
+                        'jam_pulang' => '23:30',
+                    ]);
+            }
+        }
+
         $jadwal = Absensi::where([
                             ['kodedokter', Auth::user()->employee], 
                             ['tanggal',$tanggal_ini],

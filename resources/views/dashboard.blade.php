@@ -6,7 +6,7 @@
                 {{ __('Absen Dokter') }}
             </div>
             @if ($cek->count() > 0)
-            <a href="{{ route('absenpulang',$cek->first()->absenid) }}" class="btn btn-secondary">Selesai Praktik</a>
+            <a href="{{ route('absenpulang',$cek->first()->absenid) }}" class="btn btn-secondary" onclick="return confirm('Anda Yakin Selesai Praktik?') ">Selesai Praktik</a>
             @else
             <form action="{{ route('absendok') }}" method="post">
                 @csrf
