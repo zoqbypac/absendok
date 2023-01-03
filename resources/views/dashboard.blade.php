@@ -6,9 +6,11 @@
                 {{ __('Absen Dokter') }}
             </div>
             @if ($cek->count() > 0)
-            <a href="{{ route('absenpulang',$cek->first()->absenid) }}" class="btn btn-secondary" onclick="return confirm('Anda Yakin Selesai Praktik?') ">Selesai Praktik</a>
+            <form action="{{ route('absenpulang',$cek->first()->absenid) }}" method="GET" onsubmit="btnPulang.disabled = true; return true;">
+                <button type="submit" name="btnPulang" class="btn btn-secondary">Selesai Praktik</button>
+            </form>
             @else
-            <form action="{{ route('absendok') }}" method="post">
+            <form action="{{ route('absendok') }}" method="post" onsubmit="btnAbsen.disabled = true; return true;">
                 @csrf
                 <div class="input-group">
                     <select name="jadwal" class="select select-success w-full max-w-xs">
@@ -16,7 +18,7 @@
                         <option value="{{ $item->jadwalid }}">{{ $item->poliklinik }} {{ $item->waktu }}</option>
                         @endforeach
                     </select>
-                    <button type="submit" class="btn btn-primary">Absen</button>
+                    <button type="submit" name="btnAbsen" class="btn btn-primary prevent-multiple-submits">Absen</button>
                 </div>
             </form>
             @endif

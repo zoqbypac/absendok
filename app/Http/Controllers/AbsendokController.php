@@ -114,7 +114,7 @@ class AbsendokController extends Controller
         Absensi::where('absenid', $id)
                 ->update([
                     'jam_pulang' => now(),
-                    'selisih_pulang' => (strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($data[0]->jam_mulai)) / 60,
+                    'selisih_pulang' => (strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($data[0]->jam_selesai)) / 60,
                     'updated_at' => now()
                 ]);
         Info::insert([
