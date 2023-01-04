@@ -35,7 +35,7 @@
                     </x-nav-link>
                 </div>
                 @endif
-                @if (in_array(Auth::user()->department, ['IT Support','Bagian Mutu dan Akreditasi','Direksi RS']))
+                @if (in_array(Auth::user()->department, ['IT Support','Bagian Mutu dan Akreditasi','Direksi RS','Bagian Personalia']))
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('rekapabsen')" :active="request()->routeIs('rekapabsen')">
                         {{ __('Absensi') }}
