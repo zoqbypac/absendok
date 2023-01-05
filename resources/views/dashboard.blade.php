@@ -35,7 +35,7 @@
                         <tr>
                             <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}{{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ $item->poliklinik }}</td>
                             <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}{{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">({{ $item->jam_mulai }} - {{ $item->jam_selesai }}) {{ $item->waktu }}</td>
-                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}{{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? $item->keterangan : "Sudah Absen"  }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}{{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? $item->keterangan : ""  }}</td>
                         </tr>    
                         @endforeach
                     </tbody>
