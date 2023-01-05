@@ -18,8 +18,8 @@
             <td>{{ $item->poliklinik }}</td>
             <td>{{ $item->hari }}</td>
             <td>{{ $item->waktu }}</td>
-            <td>{{ $item->jam_mulai }}</td>
-            <td>{{ $item->jam_selesai }}</td>
+            <td>{{ date('H:i',strtotime($item->jam_mulai)) }}</td>
+            <td>{{ date('H:i',strtotime($item->jam_selesai)) }}</td>
         </tr>
         @endforeach
     </tbody>

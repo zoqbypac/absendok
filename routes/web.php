@@ -42,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/jadwaldokter', [AbsendokController::class, 'jadwal'])->name('jadwaldokter');
     Route::post('/jadwalstore', [AbsendokController::class, 'jadwalstore'])->name('jadwalstore');
     Route::get('xjadwaldokter', [AbsendokController::class, 'xjadwal'])->name('xjadwaldokter');
-    Route::get('/inputjadwal', [AbsendokController::class, 'inputjadwal'])->name('inputjadwal');
+    Route::post('/inputjadwal', [AbsendokController::class, 'inputjadwal'])->name('inputjadwal');
     Route::post('/jadwalcuti', [AbsendokController::class, 'jadwalcuti'])->name('jadwalcuti');
     Route::get('/hapusjadwal', [AbsendokController::class, 'hapusjadwal'])->name('hapusjadwal');
     Route::get('/hapusjadwal/{id}', [AbsendokController::class, 'xhapusjadwal'])->name('xhapusjadwal');

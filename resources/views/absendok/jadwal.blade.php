@@ -34,25 +34,37 @@
                 </div>
                 @endif
                 <div class="px-6 py-6">
-                    {{-- <a href="#input-jadwal" class="btn btn-sm btn-primary">input</a> --}}
+                    <a href="#input-jadwal" class="btn btn-sm btn-primary">input</a>
                     <a href="#input-cuti" class="btn btn-sm btn-success" type="submit">cuti / TP</a>  
                     <a href="#hapus-jadwal" class="btn btn-sm btn-secondary" type="submit">hapus</a>
                     <a href="{{ route('xjadwaldokter') }}" class="btn btn-sm btn-info" type="submit">Eksport</a>  
                 </div>
-                    {{-- <!-- modal input jadwal dokter -->
+                    <!-- modal input jadwal dokter -->
                     <div class="modal" id="input-jadwal">
                         <div class="modal-box">
                             <form action="{{ route('inputjadwal') }}" method="post">
+                            @csrf
                             <div class="form-control">
                                 <label class="label">
                                     <span class="label-text">Nama Dokter</span>
                                 </label>
                                 <input list="dokters" name="namadokter" class="input input-bordered" />
                                         <datalist id="dokters">
-                                            @foreach ($dokter as $nama)
-                                            <option value="{{ $nama->kodedokter }}|{{ $nama->namadokter }}">
+                                            @foreach ($userdokter as $nama)
+                                            <option value="{{ $nama->employee }}|{{ $nama->name }}">
                                             @endforeach
                                         </datalist>
+                            </div>
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">Poliklinik</span>
+                                </label>
+                                <input list="poli" name="poliklinik" class="input input-bordered" />
+                                    <datalist id="poli">
+                                        @foreach ($poliklinik as $poli)
+                                        <option value="{{ $poli->poliklinik }}">
+                                        @endforeach
+                                    </datalist>
                             </div>
                             <div class="form-control">
                                 <label class="label">
@@ -99,7 +111,7 @@
                             </div>
                             </form>
                         </div>
-                    </div>--}}
+                    </div>
                     <!-- modal input jadwal cuti dokter --> 
                     <div class="modal" id="input-cuti">
                         <div class="modal-box">

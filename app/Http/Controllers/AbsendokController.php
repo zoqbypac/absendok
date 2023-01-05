@@ -10,6 +10,7 @@ use App\Models\CutiDokter;
 use App\Models\Info;
 use App\Models\JadwalDokter;
 use App\Models\MapPoli;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -175,6 +176,7 @@ class AbsendokController extends Controller
                 ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
                 ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
                 ->get();
+            
             $cuti = DB::connection('pgsql')
                     ->table('absensi')
                     ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
@@ -292,10 +294,12 @@ class AbsendokController extends Controller
     {
         $jadwal = JadwalDokter::all();
         $random = Str::random(6);
-        $dokter = JadwalDokter::distinct()->get(['kodedokter','namadokter']);
-        $cuti = CutiDokter::whereDate('tglawal','<=',Carbon::today())->whereDate('tglakhir','>=',Carbon::today())->get();
-        
-        return view('absendok.jadwal',compact('jadwal','random','dokter','cuti'));
+        $dokter = JadwalDokter::distinct()->get(['kodedokter', 'namadokter']);
+        $cuti = CutiDokter::whereDate('tglawal', '<=', Carbon::today())->whereDate('tglakhir', '>=', Carbon::today())->get();
+        $poliklinik = JadwalDokter::distinct()->get(['poliklinik']);
+        $userdokter = User::where('department', 'Dokter Spesialis')->get();
+
+        return view('absendok.jadwal', compact('jadwal', 'random', 'dokter', 'cuti', 'poliklinik', 'userdokter'));
     }
 
     public function jadwalstore(Request $request)
@@ -313,6 +317,7 @@ class AbsendokController extends Controller
     {
         if ($request->input('random') === $request->input('konfirmasi')) {
             JadwalDokter::truncate();
+            MapPoli::truncate();
             Absensi::where('tanggal',Carbon::today())->delete();
             return redirect('jadwaldokter')->with('sukses', 'Data Jadwal Dokter Berhasil Dihapus!');
         }else {
@@ -349,6 +354,36 @@ class AbsendokController extends Controller
             return redirect('jadwaldokter')->with('gagal', 'Tanggal tidak boleh Lebih kecil dari sebelumnya!!');
         }
     }
+
+    public function inputjadwal(Request $request)
+    {
+        $this->validate($request, [
+            'namadokter' => 'required',
+            'poliklinik' => 'required',
+            'hari' => 'required',
+            'waktu' => 'required',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required'
+        ]);
+        $result = $request->input('namadokter');
+        $result_explode = explode('|', $result);
+        JadwalDokter::updateOrCreate(
+            [
+                'kodedokter' => $result_explode[0],
+                'namadokter' => $result_explode[1],
+                'poliklinik' => $request->input('poliklinik'),
+                'hari' =>  $request->input('hari'),
+                'waktu' =>  $request->input('waktu'),
+            ],
+            [
+                'jam_mulai' => $request->input('jam_mulai'),
+                'jam_selesai' => $request->input('jam_selesai'),
+            ]
+        );
+
+        return redirect('jadwaldokter')->with('sukses', 'Jadwal Dokter Berhasil di Input');
+    }
+
     public function xhapusjadwal($id)
     {
         JadwalDokter::where('jadwalid',$id)->delete();
@@ -358,7 +393,7 @@ class AbsendokController extends Controller
 
     public function mapping()
     {
-        $cekjadwal = JadwalDokter::distinct('poliklinik')->get();
+        $cekjadwal = JadwalDokter::distinct()->get('poliklinik');
         $cekmapping = MapPoli::count();
         
         if ($cekjadwal->count() != $cekmapping) {
