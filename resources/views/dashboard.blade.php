@@ -15,7 +15,7 @@
                 <div class="input-group">
                     <select name="jadwal" class="select select-success w-full max-w-xs">
                         @foreach ($jadwal as $item)
-                        <option value="{{ $item->jadwalid }}">{{ $item->poliklinik }} {{ $item->waktu }}</option>
+                        <option value="{{ $item->absenid }}">{{ $item->poliklinik }} {{ $item->waktu }}</option>
                         @endforeach
                     </select>
                     <button type="submit" name="btnAbsen" class="btn btn-primary prevent-multiple-submits">Absen</button>

@@ -79,17 +79,14 @@ class AbsendokController extends Controller
     public function absendok(Request $request)
     {
         if ($request->input('jadwal')) {
-            $jadwal = Absensi::where('jadwalid', $request->input('jadwal'))->get();
+            $jadwal = Absensi::where('absenid', $request->input('jadwal'))->get();
 
             if (((strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal[0]->jam_mulai)) / 60) > 15) {
                 $status = 'Terlambat';
             } else {
                 $status = null;
             }
-            Absensi::where([
-                ['jadwalid', $request->input('jadwal')],
-                ['tanggal', Carbon::today()]
-            ])
+            Absensi::where('absenid', $request->input('jadwal'))
                 ->update([
                     'jam_masuk' => Carbon::now()->isoFormat('HH:mm:ss'),
                     'selisih_masuk' => (strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal[0]->jam_mulai)) / 60,
