@@ -5,13 +5,13 @@
     </tr>
     <tr>
         <td>Jumlah Jadwal</td>
-        <td>: {{ ($absen->count()-$cuti) }}</td>
+        <td>: {{ ($absen->count()-$cuti->count()) }}</td>
         <td>Eksekutif: {{$absenekse}}</td>
         <td>Reguler: {{$absenreg}}</td>
     </tr>
     <tr>
         <td>Jumlah Absen</td>
-        <td>: {{ $jumlahabsen }} ({{ round(($jumlahabsen / ($absen->count()-$cuti) * 100),2) }}%)</td>
+        <td>: {{ $jumlahabsen }} ({{ round(($jumlahabsen / ($absen->count()-$cuti->count()) * 100),2) }}%)</td>
         @if ($absenekse>0)
         <td>Eksekutif: {{ $jumlahabsenekse }} ({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)</td>
         @endif
@@ -40,7 +40,7 @@
     </tr>
     <tr>
         <td>Terlambat (kumulatif)</td>
-        <td>: {{ ($absen->count()-$cuti) - $jumlahabsen + $terlambat }} ({{ round(((($absen->count()-$cuti) - $jumlahabsen + $terlambat)/ ($absen->count()-$cuti) * 100),2) }}%)
+        <td>: {{ ($absen->count()-$cuti->count()) - $jumlahabsen + $terlambat }} ({{ round(((($absen->count()-$cuti->count()) - $jumlahabsen + $terlambat)/ ($absen->count()-$cuti->count()) * 100),2) }}%)
         </td>
         @if ($absenekse>0)
         <td>Eksekutif:

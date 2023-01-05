@@ -60,12 +60,30 @@ class AbsendokController extends Controller
             }
         }
 
+        $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
+        //  dd($cekcuti);   
+        if ($cekcuti->count() > 0) {
+            foreach ($cekcuti as $cuti) {
+                Absensi::where([
+                    ['tanggal', $tanggal_ini],
+                    ['kodedokter', $cuti->kodedokter]
+                ])
+                    ->update([
+                        'keterangan' => $cuti->keterangan,
+                    ]);
+            }
+        }
+
         $jadwal = Absensi::where([
                             ['kodedokter', Auth::user()->employee], 
                             ['tanggal',$tanggal_ini],
                             ['jam_masuk',null],
                             ['keterangan',null]
-                            ])->get();
+                            ])->orderBy('jam_mulai')->get();
+        $jadwalhariini = Absensi::where([
+                            ['kodedokter', Auth::user()->employee], 
+                            ['tanggal',$tanggal_ini]
+                            ])->orderBy('jam_mulai')->get();
         $info = Info::orderBy('waktu')->whereDate('waktu', $tanggal_ini)->get();
         $cek = Absensi::where([
                 ['kodedokter', Auth::user()->employee],
@@ -73,7 +91,7 @@ class AbsendokController extends Controller
                 ['jam_pulang', null]
             ])
             ->get();
-        return view('dashboard', compact('jadwal', 'info', 'cek'));
+        return view('dashboard', compact('jadwal', 'info', 'cek','jadwalhariini'));
     }
 
     public function absendok(Request $request)
@@ -101,7 +119,7 @@ class AbsendokController extends Controller
           return redirect('dashboard');  
         }
         
-        return redirect('dashboard')->with('gagal','Jadwal Dokter Tidak ada!!');
+        return redirect('dashboard')->with('gagal','Jadwal Dokter Tidak ada atau Sudah Absen!!');
                 
     }
     
@@ -148,20 +166,7 @@ class AbsendokController extends Controller
                 ]);
             }
         }
-        $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
-        //  dd($cekcuti);   
-        if ($cekcuti->count() > 0) {
-            foreach ($cekcuti as $cuti) {
-                Absensi::where([
-                    ['tanggal',$tanggal_ini],
-                    ['kodedokter',$cuti->kodedokter]
-                    ])
-                ->update([
-                    'keterangan' => $cuti->keterangan,
-                ]);
-            }
-        }
-
+        
 
         if ($request->input('dari') <= $request->input('sampai')) {
             $absen = DB::connection('pgsql')
@@ -170,9 +175,15 @@ class AbsendokController extends Controller
                 ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
                 ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
                 ->get();
-            $cuti = Absensi::whereIn('keterangan',['Cuti','Tidak Praktek'])->count();
-            $absenekse = $absen->where('kategori', 'Eksekutif')->count();
-            $absenreg = $absen->where('kategori', 'Reguler')->count();
+            $cuti = DB::connection('pgsql')
+                    ->table('absensi')
+                    ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                    ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
+                    ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
+                    ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
+                    ->get();
+            $absenekse = $absen->where('kategori', 'Eksekutif')->count() - $cuti->where('kategori', 'Eksekutif')->count();
+            $absenreg = $absen->where('kategori', 'Reguler')->count() - $cuti->where('kategori', 'Reguler')->count();
             $jumlahabsen = $absen->where('jam_masuk', '!=', null)->count();
             $jumlahabsenekse = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Eksekutif')->count();
             $jumlahabsenreg = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Reguler')->count();
@@ -247,9 +258,15 @@ class AbsendokController extends Controller
                     ->whereDate('tanggal', '<=', $request->input('sampai') ?? Carbon::today())
                     ->get();
 
-            $cuti = Absensi::whereIn('keterangan', ['Cuti', 'Tidak Praktek'])->count();
-            $absenekse = $absen->where('kategori', 'Eksekutif')->count();
-            $absenreg = $absen->where('kategori', 'Reguler')->count();
+            $cuti = DB::connection('pgsql')
+                ->table('absensi')
+                ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->whereDate('tanggal', '>=', $request->input('dari') ?? Carbon::today())
+                ->whereDate('tanggal', '<=', $request->input('sampai') ?? Carbon::today())
+                ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
+                ->get();
+            $absenekse = $absen->where('kategori', 'Eksekutif')->count() - $cuti->where('kategori', 'Eksekutif')->count();
+            $absenreg = $absen->where('kategori', 'Reguler')->count() - $cuti->where('kategori', 'Reguler')->count();
             $jumlahabsen = $absen->where('jam_masuk', '!=', null)->count();
             $jumlahabsenekse = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Eksekutif')->count();
             $jumlahabsenreg = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Reguler')->count();

@@ -26,14 +26,14 @@
                     <table class="table table-zebra table-compact">
                         <tr>
                                 <td class="border-y border-l border-stone-400">Jumlah Jadwal</td>
-                                <td class="border-y border-r border-stone-400">: {{ ($absen->count() - $cuti) }}</td>
+                                <td class="border-y border-r border-stone-400">: {{ ($absen->count() - $cuti->count()) }}</td>
                                 <td class="border-y border-l border-r border-stone-400">Eksekutif: {{$absenekse}}</td>
                                 <td class="border-y border-l border-r border-stone-400">Reguler: {{$absenreg}}</td>
                             </tr>
                             <tr>
                                 <td class="border-y border-l border-stone-400">Jumlah Absen</td>
                                 <td class="border-y border-stone-400">: {{ $jumlahabsen }}</td>
-                                <td>({{ round(($jumlahabsen / ($absen->count() - $cuti) * 100),2) }}%)</td>
+                                <td>({{ round(($jumlahabsen / ($absen->count() - $cuti->count()) * 100),2) }}%)</td>
                                 <td class="border-y border-l border-stone-400">Eksekutif: {{ $jumlahabsenekse }}</td>
                                 @if ($absenekse>0)
                                 <td class="border-y border-stone-400">({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)</td>
@@ -69,8 +69,8 @@
                             </tr>
                             <tr>
                                 <td class="border-y border-l border-stone-400">Terlambat (kumulatif)</td>
-                                <td class="border-y border-stone-400">: {{ ($absen->count() - $cuti) - $jumlahabsen + $terlambat }}</td>
-                                <td class="border-y border-stone-400">({{ round(((($absen->count() - $cuti) - $jumlahabsen + $terlambat)/ ($absen->count() - $cuti) * 100),2) }}%)</td>
+                                <td class="border-y border-stone-400">: {{ ($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat }}</td>
+                                <td class="border-y border-stone-400">({{ round(((($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat)/ ($absen->count() - $cuti->count()) * 100),2) }}%)</td>
                                 <td class="border-y  border-l border-stone-400">Eksekutif: {{ $absenekse - $jumlahabsenekse + $terlambatekse }}</td>
                                 @if ($absenekse>0)
                                 <td class="border-y border-stone-400">({{ round((($absenekse - $jumlahabsenekse + $terlambatekse)/ $absenekse * 100),2) }}%)</td>

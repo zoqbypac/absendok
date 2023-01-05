@@ -1,42 +1,62 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="grid grid-cols-4 gap-4">
+        <div class="flex flex-row w-full">
             @if (in_array(Auth::user()->department, ['Dokter Spesialis']))
+            <div class="basis-1/4">
             <div class="font-semibold text-2xl text-gray-800 leading-tight">
                 {{ __('Absen Dokter') }}
             </div>
+            </div>
             @if ($cek->count() > 0)
-            <form action="{{ route('absenpulang',$cek->first()->absenid) }}" method="GET" onsubmit="btnPulang.disabled = true; return true;">
-                <button type="submit" name="btnPulang" class="btn btn-secondary">Selesai Praktik</button>
-            </form>
-            @else
-            <form action="{{ route('absendok') }}" method="post" onsubmit="btnAbsen.disabled = true; return true;">
-                @csrf
-                <div class="input-group">
-                    <select name="jadwal" class="select select-success w-full max-w-xs">
-                        @foreach ($jadwal as $item)
-                        <option value="{{ $item->absenid }}">{{ $item->poliklinik }} {{ $item->waktu }}</option>
-                        @endforeach
-                    </select>
-                    <button type="submit" name="btnAbsen" class="btn btn-primary prevent-multiple-submits">Absen</button>
+                <div class="basis-1/4">
+                    <form action="{{ route('absenpulang',$cek->first()->absenid) }}" method="GET" onsubmit="btnPulang.disabled = true; return true;">
+                        <button type="submit" name="btnPulang" class="btn btn-secondary">Selesai Praktik</button>
+                    </form>
                 </div>
-            </form>
-            @endif
             @else
+                <div class="basis-1/4">
+                    <form action="{{ route('absendok') }}" method="post" onsubmit="btnAbsen.disabled = true; return true;">
+                        @csrf
+                        <div class="input-group">
+                            <select name="jadwal" class="select select-success w-full max-w-xs">
+                                @foreach ($jadwal as $item)
+                                <option value="{{ $item->absenid }}">{{ $item->poliklinik }} {{ $item->waktu }}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit" name="btnAbsen" class="btn btn-primary prevent-multiple-submits">Absen</button>
+                        </div>
+                    </form>
+                </div>
+            @endif
+            <div class="basis-1/2">
+                <table class="table table-compact">
+                    <tbody>
+                        @foreach ($jadwalhariini as $item)
+                        <tr>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}">{{ $item->poliklinik }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}">({{ $item->jam_mulai }} - {{ $item->jam_selesai }}) {{ $item->waktu }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }}</td>
+                        </tr>    
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="basis-1/4">
             <div class="font-semibold text-2xl text-gray-800 leading-tight">
                 {{ __('Dashboard') }}
             </div>
+            </div>
             @endif
-            @if ($gagal = Session::get('gagal'))
-                <div class="alert alert-success shadow-lg">
+        </div>
+         @if ($gagal = Session::get('gagal'))
+                <div class="alert alert-warning shadow-lg">
                     <div>
                         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span>{{ $gagal }}</span>
                     </div>
                 </div>
             @endif
-        </div>
-
     </x-slot>
 
     <div class="py-12">
