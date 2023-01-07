@@ -14,7 +14,7 @@
                     </form>
                 </div>
             @else
-                <div class="basis-1/4">
+                <div class="basis-1/2">
                     <form action="{{ route('absendok') }}" method="post" onsubmit="btnAbsen.disabled = true; return true;">
                         @csrf
                         <div class="input-group">
@@ -28,14 +28,14 @@
                     </form>
                 </div>
             @endif
-            <div class="basis-1/2">
+            <div class="basis-1/4">
                 <table class="table table-compact">
                     <tbody>
                         @foreach ($jadwalhariini as $item)
                         <tr>
-                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}{{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ $item->poliklinik }}</td>
-                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}{{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">({{ $item->jam_mulai }} - {{ $item->jam_selesai }}) {{ $item->waktu }}</td>
-                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }}{{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? $item->keterangan : ""  }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ $item->poliklinik }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">({{ $item->jam_mulai }} - {{ $item->jam_selesai }}) {{ $item->waktu }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? $item->keterangan : ""  }}</td>
                         </tr>    
                         @endforeach
                     </tbody>
