@@ -201,7 +201,10 @@
                             <td>{{ $item->waktu }}</td> 
                             <td>{{ $item->jam_mulai }}</td> 
                             <td>{{ $item->jam_selesai }}</td>
-                            <td><a href="{{ route('xhapusjadwal',$item->jadwalid) }}"class="btn btn-sm btn-secondary" onclick="return confirm('Anda yakin ingin menghapus jadwal dokter ini?') ">Hapus</a></td> 
+                            <td>
+                                <a href="{{ route('ubahjadwal',$item->jadwalid) }}"class="btn btn-sm btn-info">Ubah</a>
+                                <a href="{{ route('xhapusjadwal',$item->jadwalid) }}"class="btn btn-sm btn-secondary" onclick="return confirm('Anda yakin ingin menghapus jadwal dokter ini?') ">Hapus</a>
+                            </td>
                             </tr>    
                             @endforeach
                         </tbody>
@@ -213,12 +216,19 @@
                             <thead>
                                 <tr>
                                     <th>Dokter Cuti / Tidak praktik Hari ini</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($cuti as $item)
                                 <tr>
                                     <td>{{ $item->namadokter }}</td>
+                                    <td>
+                                        <form action="{{ route('hapuscuti') }}" method="get">
+                                        <input type="hidden" name="id" value="{{ $item->cutiid }}">
+                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Anda yakin ingin menghapus cuti {{ $item->namadokter }}?') ">Hapus</button>
+                                        </form>
+                                    </td>
                                 </tr>    
                                 @endforeach
                             </tbody>

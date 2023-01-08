@@ -355,6 +355,19 @@ class AbsendokController extends Controller
         }
     }
 
+    public function hapuscuti(Request $request)
+    {
+        $cuti = CutiDokter::find($request->input('id'));
+        Absensi::where([
+            ['kodedokter', $cuti->kodedokter],
+            ['tanggal', Carbon::today()]
+        ])->update([
+            'keterangan' => null
+        ]);
+        $cuti->delete();
+        return redirect('jadwaldokter')->with('sukses', 'Cuti Dokter Berhasil di Hapus');
+    }
+
     public function inputjadwal(Request $request)
     {
         $this->validate($request, [
@@ -365,6 +378,31 @@ class AbsendokController extends Controller
             'jam_mulai' => 'required',
             'jam_selesai' => 'required'
         ]);
+
+        if ($request->input('kodedokter')) {
+            JadwalDokter::find($request->jadwalid)
+                ->update([
+                    'namadokter' => $request->input('namadokter'),
+                    'poliklinik' => $request->input('poliklinik'),
+                    'hari' => $request->input('hari'),
+                    'waktu' => $request->input('waktu'),
+                    'jam_mulai' => $request->input('jam_mulai'),
+                    'jam_selesai' => $request->input('jam_selesai')
+                ]);
+            Absensi::where([
+                ['jadwalid', $request->input('jadwalid')],
+                ['tanggal', Carbon::today()]
+            ])->update([
+                'namadokter' => $request->input('namadokter'),
+                'poliklinik' => $request->input('poliklinik'),
+                'hari' => $request->input('hari'),
+                'waktu' => $request->input('waktu'),
+                'jam_mulai' => $request->input('jam_mulai'),
+                'jam_selesai' => $request->input('jam_selesai')
+            ]);
+            return redirect('jadwaldokter')->with('sukses', 'Jadwal Dokter Berhasil di Ubah');
+        }
+
         $result = $request->input('namadokter');
         $result_explode = explode('|', $result);
         JadwalDokter::updateOrCreate(
@@ -445,4 +483,11 @@ class AbsendokController extends Controller
         return view('absendok.viewjadwal',compact('jadwal','senin','selasa','rabu','kamis','jumat','sabtu','minggu'));
     }
 
+    public function ubahjadwal($id)
+    {
+        $dokter = JadwalDokter::find($id);
+        $poliklinik = JadwalDokter::distinct()->get(['poliklinik']);
+
+        return view('absendok.ubahjadwal', compact('dokter', 'poliklinik'));
+    }
 }

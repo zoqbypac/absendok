@@ -44,11 +44,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('xjadwaldokter', [AbsendokController::class, 'xjadwal'])->name('xjadwaldokter');
     Route::post('/inputjadwal', [AbsendokController::class, 'inputjadwal'])->name('inputjadwal');
     Route::post('/jadwalcuti', [AbsendokController::class, 'jadwalcuti'])->name('jadwalcuti');
+    Route::get('/hapuscuti', [AbsendokController::class, 'hapuscuti'])->name('hapuscuti');
     Route::get('/hapusjadwal', [AbsendokController::class, 'hapusjadwal'])->name('hapusjadwal');
     Route::get('/hapusjadwal/{id}', [AbsendokController::class, 'xhapusjadwal'])->name('xhapusjadwal');
     Route::get('/mappingpoli',[AbsendokController::class, 'mapping'])->name('mappingpoli');
     Route::post('/mappingstore', [AbsendokController::class, 'mappingstore'])->name('mappingstore');
     Route::get('/viewjadwal', [AbsendokController::class, 'viewjadwal'])->name('viewjadwal');
+    Route::get('/ubahjadwal/{id}', [AbsendokController::class, 'ubahjadwal'])->name('ubahjadwal');
 
    //User
     Route::get('/daftaruser',[UsersController::class, 'index'])->name('daftaruser');

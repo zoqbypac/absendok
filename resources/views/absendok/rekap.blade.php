@@ -33,7 +33,7 @@
                             <tr>
                                 <td class="border-y border-l border-stone-400">Jumlah Absen</td>
                                 <td class="border-y border-stone-400">: {{ $jumlahabsen }}</td>
-                                <td>({{ round(($jumlahabsen / ($absen->count() - $cuti->count()) * 100),2) }}%)</td>
+                                <td class="border-y border-stone-400">({{ round(($jumlahabsen / ($absen->count() - $cuti->count()) * 100),2) }}%)</td>
                                 <td class="border-y border-l border-stone-400">Eksekutif: {{ $jumlahabsenekse }}</td>
                                 @if ($absenekse>0)
                                 <td class="border-y border-stone-400">({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)</td>
@@ -41,6 +41,19 @@
                                 <td class="border-y border-l border-stone-400">Reguler: {{ $jumlahabsenreg }}</td>
                                 @if ($absenreg>0)
                                 <td class="border-y border-r border-stone-400">({{ round(($jumlahabsenreg / $absenreg * 100),2) }}%)</td>
+                                @endif
+                            </tr>
+                            <tr>
+                                <td class="border-y border-l border-stone-400">Jumlah Tidak Absen</td>
+                                <td class="border-y border-stone-400">: {{ ($absen->count() - $cuti->count() - $jumlahabsen )}}</td>
+                                <td class="border-y border-stone-400">({{ round((($absen->count() - $cuti->count() - $jumlahabsen ) / ($absen->count() - $cuti->count()) * 100),2) }}%)</td>
+                                <td class="border-y border-l border-stone-400">Eksekutif: {{ $absenekse - $jumlahabsenekse }}</td>
+                                @if ($absenekse<0)
+                                <td class="border-y border-stone-400">({{ round((($absenekse - $jumlahabsenekse) / $absenekse * 100),2) }}%)</td>
+                                @endif
+                                <td class="border-y border-l border-stone-400">Reguler: {{ $absenreg - $jumlahabsenreg }}</td>
+                                @if ($absenreg<0)
+                                <td class="border-y border-r border-stone-400">({{ round((($absenreg - $jumlahabsenreg) / $absenreg * 100),2) }}%)</td>
                                 @endif
                             </tr>
                             <tr>
@@ -81,44 +94,103 @@
                                 @endif
                             </tr>
                     </table>
-                    <div class="mt-2 overflow-x-auto">
-                        <table id="absendok" class="table w-full">
+                    <div class="wrapper mt-2 overflow-x-auto">
+                        <div class="tabs">
+                            <button data-id="absen"  class="tab tab-lg tab-lifted tab-active">Absen</button> 
+                            <button data-id="tidakabsen" class="tab tab-lg tab-lifted">Tidak Absen</button>
+                        </div>
+                        <div>
+                            <div id="absen" class="content">
+                                <table id="tdabsen" class="table w-full">
+                                    <thead>
+                                        <tr>
+                                            <th>Tanggal</th>
+                                            <th>Nama Dokter</th>
+                                            <th>Poliklinik</th>
+                                            <th>Jam Mulai</th>
+                                            <th>Jam Masuk</th>
+                                            <th>Selisih</th>
+                                            <th>Keterangan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($absen->where('jam_masuk','!=',null) as $item)
+                                        <tr>
+                                            <td>{{ $item->tanggal }}</td>
+                                            <td>{{ $item->namadokter }}</td>
+                                            <td>{{ $item->poliklinik }}</td>
+                                            <td>{{ $item->jam_mulai }}</td>
+                                            <td>{{ $item->jam_masuk }}</td>
+                                            <td>{{ $item->selisih_masuk }} Menit</td>
+                                            <td>
+                                                @if ($item->keterangan == 'Terlambat')
+                                                    <div class="text-red-500">Terlambat</div>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                </table>
+                            </div>
+                        <div  id="tidakabsen" class="content hidden">
+                           <table id="tdtidakabsen" class="table w-full">
                             <thead>
                                 <tr>
-                                    <th>Tanggal</th>
+                                    <th>Tidak Absen</th>
                                     <th>Nama Dokter</th>
                                     <th>Poliklinik</th>
                                     <th>Jam Mulai</th>
-                                    <th>Jam Masuk</th>
-                                    <th>Selisih</th>
-                                    <th>Keterangan</th>
+                                    <th>Jam Selesai</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($absen->where('jam_masuk','!=',null) as $item)
+                                @foreach ($absen->where('jam_masuk',null)->where('keterangan',null) as $item)
                                 <tr>
                                     <td>{{ $item->tanggal }}</td>
                                     <td>{{ $item->namadokter }}</td>
                                     <td>{{ $item->poliklinik }}</td>
                                     <td>{{ $item->jam_mulai }}</td>
-                                    <td>{{ $item->jam_masuk }}</td>
-                                    <td>{{ $item->selisih_masuk }} Menit</td>
-                                    <td>
-                                        @if ($item->keterangan == 'Terlambat')
-                                            <div class="text-red-500">Terlambat</div>
-                                        @endif
-                                    </td>
+                                    <td>{{ $item->jam_selesai }}</td>
                                 </tr>
                                 @endforeach
 
-                        </table>
+                        </table> 
+                        </div>
+                        
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        $('#absendok').DataTable();
+        $("#tdabsen").DataTable();
+        const tabs = document.querySelector(".wrapper");
+        const tabButton = document.querySelectorAll(".tab");
+        const contents = document.querySelectorAll(".content");
+        
+        tabs.onclick = e => {
+        const id = e.target.dataset.id;
+        
+        if (id) {
+                tabButton.forEach(btn => {
+                    btn.classList.remove("tab-active");
+                });
+                e.target.classList.add("tab-active");
+
+                contents.forEach(content => {
+                    content.classList.add("hidden");
+                });
+                const element = document.getElementById(id);
+                element.classList.remove("hidden");
+                 
+            }
+            if (id == 'absen') {
+                $("#tdabsen").DataTable();
+            } else {
+               $("#tdtidakabsen").DataTable(); 
+            }
+            
+        }
     </script>
 @endif
     

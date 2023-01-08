@@ -5,13 +5,13 @@
     </tr>
     <tr>
         <td>Jumlah Jadwal</td>
-        <td>: {{ ($absen->count()-$cuti->count()) }}</td>
+        <td>: {{ ($absen->count()-$cuti) }}</td>
         <td>Eksekutif: {{$absenekse}}</td>
         <td>Reguler: {{$absenreg}}</td>
     </tr>
     <tr>
         <td>Jumlah Absen</td>
-        <td>: {{ $jumlahabsen }} ({{ round(($jumlahabsen / ($absen->count()-$cuti->count()) * 100),2) }}%)</td>
+        <td>: {{ $jumlahabsen }} ({{ round(($jumlahabsen / ($absen->count()-$cuti) * 100),2) }}%)</td>
         @if ($absenekse>0)
         <td>Eksekutif: {{ $jumlahabsenekse }} ({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)</td>
         @endif
@@ -40,16 +40,19 @@
     </tr>
     <tr>
         <td>Terlambat (kumulatif)</td>
-        <td>: {{ ($absen->count()-$cuti->count()) - $jumlahabsen + $terlambat }} ({{ round(((($absen->count()-$cuti->count()) - $jumlahabsen + $terlambat)/ ($absen->count()-$cuti->count()) * 100),2) }}%)
+        <td>: {{ ($absen->count()-$cuti) - $jumlahabsen + $terlambat }}
+            ({{ round(((($absen->count()-$cuti) - $jumlahabsen + $terlambat)/ ($absen->count()-$cuti) * 100),2) }}%)
         </td>
         @if ($absenekse>0)
         <td>Eksekutif:
-            {{ $absenekse - $jumlahabsenekse + $terlambatekse }} ({{ round((($absenekse - $jumlahabsenekse + $terlambatekse)/ $absenekse * 100),2) }}%)
+            {{ $absenekse - $jumlahabsenekse + $terlambatekse }}
+            ({{ round((($absenekse - $jumlahabsenekse + $terlambatekse)/ $absenekse * 100),2) }}%)
         </td>
         @endif
         @if ($absenreg>0)
         <td>Reguler:
-            {{ $absenreg - $jumlahabsenreg + $terlambatreg }} ({{ round((($absenreg - $jumlahabsenreg + $terlambatreg)/ $absenreg * 100),2) }}%)</td>
+            {{ $absenreg - $jumlahabsenreg + $terlambatreg }}
+            ({{ round((($absenreg - $jumlahabsenreg + $terlambatreg)/ $absenreg * 100),2) }}%)</td>
         @endif
     </tr>
 </table>
@@ -90,3 +93,27 @@
             @endforeach
 
     </table>
+    <table id="tdtidakabsen" class="table w-full">
+        <thead>
+            <tr>
+                <th>kodedokter</th>
+                <th>Nama Dokter</th>
+                <th>Poliklinik</th>
+                <th>Jam Mulai</th>
+                <th>Jam Selesai</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($absen->where('jam_masuk',null)->where('keterangan',null) as $item)
+            <tr>
+                <td>{{ $item->tanggal }}</td>
+                <td>{{ $item->namadokter }}</td>
+                <td>{{ $item->poliklinik }}</td>
+                <td>{{ $item->jam_mulai }}</td>
+                <td>{{ $item->jam_selesai }}</td>
+                <td>Dokter Tidak Absen</td>
+            </tr>
+            @endforeach
+    </table>
+</div>
