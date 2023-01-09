@@ -48,11 +48,11 @@
                                 <td class="border-y border-stone-400">: {{ ($absen->count() - $cuti->count() - $jumlahabsen )}}</td>
                                 <td class="border-y border-stone-400">({{ round((($absen->count() - $cuti->count() - $jumlahabsen ) / ($absen->count() - $cuti->count()) * 100),2) }}%)</td>
                                 <td class="border-y border-l border-stone-400">Eksekutif: {{ $absenekse - $jumlahabsenekse }}</td>
-                                @if ($absenekse<0)
+                                @if ($absenekse>0)
                                 <td class="border-y border-stone-400">({{ round((($absenekse - $jumlahabsenekse) / $absenekse * 100),2) }}%)</td>
                                 @endif
                                 <td class="border-y border-l border-stone-400">Reguler: {{ $absenreg - $jumlahabsenreg }}</td>
-                                @if ($absenreg<0)
+                                @if ($absenreg>0)
                                 <td class="border-y border-r border-stone-400">({{ round((($absenreg - $jumlahabsenreg) / $absenreg * 100),2) }}%)</td>
                                 @endif
                             </tr>
