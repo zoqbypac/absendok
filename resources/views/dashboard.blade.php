@@ -139,6 +139,7 @@
                 data: "pesan="+pesan,
                 success: function(data) {
                     $('#pesan').val('');
+                    isiChat();
                 }
             });  
             }
