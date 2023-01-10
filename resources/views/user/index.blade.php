@@ -50,7 +50,15 @@
                                         <label class="label">
                                             <span class="label-text">Department</span>
                                         </label>
-                                        <input type="text" name="department" class="input input-bordered" />
+                                        <select name="department" class="select select-bordered">
+                                            <option value="Bidang Keperawatan">Bidang Keperawatan</option>
+                                            <option value="Bagian Mutu dan Akreditasi">Bagian Mutu dan Akreditasi</option>
+                                            <option value="Bagian Personalia">Bagian Personalia</option>
+                                            <option value="Direksi RS">Direksi RS</option>
+                                            <option value="Dokter Spesialis">Dokter Spesialis</option>
+                                            <option value="Front Office Customer Service">Front Office Customer Service</option>
+                                            <option value="IT Support">IT Support</option>
+                                        </select>
                                     </div>
                                     <div class="form-control">
                                         <label class="label">

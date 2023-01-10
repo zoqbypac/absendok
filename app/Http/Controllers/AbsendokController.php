@@ -224,7 +224,7 @@ class AbsendokController extends Controller
             return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
         }
     }
-
+    
     public function chatgroup(Request $request)
     {
         DB::connection('pgsql')
@@ -237,7 +237,7 @@ class AbsendokController extends Controller
             ]);
     }
     public function getchatgroup(Request $request)
-    {
+    {    
         $chat = DB::connection('pgsql')
             ->table('chat_groups')
             ->join('users', 'chat_groups.userid', '=', 'users.employee')
@@ -245,6 +245,19 @@ class AbsendokController extends Controller
             ->whereDate('waktu', Carbon::today())
             ->get();
         return view('absendok.chat', compact('chat'));
+    }
+    public function cekinfo(Request $request)
+    {
+            $info = Info::orderBy('waktu')
+                    ->whereDate('waktu', Carbon::today())
+                    ->count();
+                $chat = DB::connection('pgsql')
+                    ->table('chat_groups')
+                    ->whereDate('waktu', Carbon::today())
+                    ->count();
+                
+            return response()->json(array('info' => $info, 'chat' => $chat), 200);
+        
     }
     public function getinfo(Request $request)
     {

@@ -103,6 +103,9 @@
     
     $(document).ready(function() {
             isiChat();
+            isiInfo();
+            scrollInfo();
+            scrollChat();
         });
 
     function isiChat() {
@@ -115,6 +118,12 @@
         $.get("{{ route('getinfo') }}", {}, function(data, status) {
             $("#info").html(data);
         });
+        fetch("{{ url('cekinfo') }}")
+            .then((response) => response.json())
+            .then((ress) => {
+                chat = ress.chat;
+                info = ress.info;
+            });
     }
 
     $("#kirim").click(function() {
@@ -151,20 +160,28 @@
         infoBox.classList.remove("active");
     }
     
-    // $(window).on('load', function() {
-    //     scrollInfo();
-    //     scrollChat();
-    // })
     setInterval(() =>{
         if(!chatBox.classList.contains("active")){
             scrollChat();
-            isiChat();
         }
+        fetch("{{ url('cekinfo') }}")
+            .then((response) => response.json())
+            .then((ress) => {
+                if(chat != ress.chat){
+                        isiChat();
+                    chat = ress.chat;
+                    }
+                if(info != ress.info){
+                        isiInfo();
+                    info = ress.info;
+                    }
+            });
+        
         if(!infoBox.classList.contains("active")){
             scrollInfo();
-            isiInfo();
         }
-    }, 1000);
+        
+    }, 1500);
     
     function scrollInfo(){
         infoBox.scrollTop = infoBox.scrollHeight;

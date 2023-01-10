@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/chatgroup', [AbsendokController::class, 'chatgroup'])->name('chatgroup');
     Route::get('/getchatgroup', [AbsendokController::class, 'getchatgroup'])->name('getchatgroup');
     Route::get('/getinfo', [AbsendokController::class, 'getinfo'])->name('getinfo');
+    Route::get('/cekinfo', [AbsendokController::class, 'cekinfo']);
     Route::get('/rekapabsen/export/', [AbsendokController::class, 'export'])->name('xrekapabsen');
     Route::get('/jadwaldokter', [AbsendokController::class, 'jadwal'])->name('jadwaldokter');
     Route::post('/jadwalstore', [AbsendokController::class, 'jadwalstore'])->name('jadwalstore');
