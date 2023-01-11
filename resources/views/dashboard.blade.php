@@ -94,6 +94,8 @@
 <script>
     infoBox = document.querySelector("#info")
     chatBox = document.querySelector("#chat")
+    var bleep = new Audio();
+        bleep.src = '{{ asset('audio/Message Tone.mp3') }}';
     
     $("#pesan").keyup(function(event) {
     if (event.keyCode === 13) {
@@ -112,18 +114,18 @@
             $.get("{{ route('getchatgroup') }}", {}, function(data, status) {
                 $("#chat").html(data);
             });
-        }
-
-    function isiInfo() {
-        $.get("{{ route('getinfo') }}", {}, function(data, status) {
-            $("#info").html(data);
-        });
         fetch("{{ url('cekinfo') }}")
             .then((response) => response.json())
             .then((ress) => {
                 chat = ress.chat;
                 info = ress.info;
             });
+        }
+
+    function isiInfo() {
+        $.get("{{ route('getinfo') }}", {}, function(data, status) {
+            $("#info").html(data);
+        });
     }
 
     $("#kirim").click(function() {
@@ -168,11 +170,14 @@
         fetch("{{ url('cekinfo') }}")
             .then((response) => response.json())
             .then((ress) => {
+                
                 if(chat != ress.chat){
+                        bleep.play();
                         isiChat();
                     chat = ress.chat;
                     }
                 if(info != ress.info){
+                        bleep.play();
                         isiInfo();
                     info = ress.info;
                     }
@@ -182,7 +187,7 @@
             scrollInfo();
         }
         
-    }, 1500);
+    }, 2000);
     
     function scrollInfo(){
         infoBox.scrollTop = infoBox.scrollHeight;
