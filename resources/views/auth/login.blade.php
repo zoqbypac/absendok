@@ -21,7 +21,7 @@
                     <label class="label">
                       <span class="label-text">Employee No</span>
                     </label>
-                    <input type="text" name="employee" placeholder="Employee No" class="input input-bordered" />
+                    <input oninput="this.value = this.value.toUpperCase()" type="text" name="employee" placeholder="Employee No" class="input input-bordered uppercase placeholder:normal-case"   />
                 </div>
 
                 {{-- <x-text-input id="employee" class="block mt-1 w-full" type="text" name="employee" :value="old('employee')" required autofocus /> --}}
