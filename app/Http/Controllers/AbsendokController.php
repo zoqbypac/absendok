@@ -272,13 +272,19 @@ class AbsendokController extends Controller
             $absen = DB::connection('pgsql')
                 ->table('absensi')
                 ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
-                ->whereDate('tanggal', '>=', $request->input('dari') ?? Carbon::today())
-                ->whereDate('tanggal', '<=', $request->input('sampai') ?? Carbon::today())
+                ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
+                ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
                 ->get();
 
-            $cuti = Absensi::whereIn('keterangan', ['Cuti', 'Tidak Praktek'])->count();
-            $absenekse = $absen->where('kategori', 'Eksekutif')->count();
-            $absenreg = $absen->where('kategori', 'Reguler')->count();
+            $cuti = DB::connection('pgsql')
+                ->table('absensi')
+                ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
+                ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
+                ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
+                ->get();
+            $absenekse = $absen->where('kategori', 'Eksekutif')->count() - $cuti->where('kategori', 'Eksekutif')->count();
+            $absenreg = $absen->where('kategori', 'Reguler')->count() - $cuti->where('kategori', 'Reguler')->count();
             $jumlahabsen = $absen->where('jam_masuk', '!=', null)->count();
             $jumlahabsenekse = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Eksekutif')->count();
             $jumlahabsenreg = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Reguler')->count();
@@ -286,12 +292,13 @@ class AbsendokController extends Controller
             $terlambatekse = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Eksekutif')->count();
             $terlambatreg = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Reguler')->count();
 
+
             $avg = $absen->where('keterangan', 'Terlambat')
                 ->average('selisih_masuk');
-            $avgekse = $absen->where('keterangan', 'Terlambat')->where('poliklinik', '!=', 'Poli Klinik Reguler')
+            $avgekse = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Eksekutif')
                 ->average('selisih_masuk');
-            $avgreg = $absen->where('keterangan', 'Terlambat')->where('poliklinik', 'Poli Klinik Reguler')
-                ->average('selisih_masuk');
+            $avgreg = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Reguler')
+            ->average('selisih_masuk');
             $tanggal = Carbon::parse($request->input('dari'))->isoFormat('DD MMMM YYYY') . ' - ' . Carbon::parse($request->input('sampai'))->isoFormat('DD MMMM YYYY');
 
             return Excel::download(new AbsensiEksport($cuti, $tanggal, $absen, $absenekse, $absenreg, $jumlahabsen, $jumlahabsenekse, $jumlahabsenreg, $terlambat, $terlambatekse, $terlambatreg, $avg, $avgekse, $avgreg), 'Absensi ' . $tanggal . '.xlsx');

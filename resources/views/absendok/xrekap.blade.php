@@ -1,58 +1,73 @@
 <table class="table table-zebra table-compact">
     <tr>
-        <th>Rekap Absen</th>
-        <th>: {{ $tanggal }}</th>
-    </tr>
-    <tr>
         <td>Jumlah Jadwal</td>
-        <td>: {{ ($absen->count()-$cuti) }}</td>
+        <td>: {{ ($absen->count() - $cuti->count()) }}</td>
         <td>Eksekutif: {{$absenekse}}</td>
         <td>Reguler: {{$absenreg}}</td>
     </tr>
     <tr>
         <td>Jumlah Absen</td>
-        <td>: {{ $jumlahabsen }} ({{ round(($jumlahabsen / ($absen->count()-$cuti) * 100),2) }}%)</td>
+        <td>: {{ $jumlahabsen }}</td>
+        <td>({{ round(($jumlahabsen / ($absen->count() - $cuti->count()) * 100),2) }}%)</td>
+        <td>Eksekutif: {{ $jumlahabsenekse }}</td>
         @if ($absenekse>0)
-        <td>Eksekutif: {{ $jumlahabsenekse }} ({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)</td>
+        <td>({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)</td>
         @endif
+        <td>Reguler: {{ $jumlahabsenreg }}</td>
         @if ($absenreg>0)
-        <td>Reguler: {{ $jumlahabsenreg }} ({{ round(($jumlahabsenreg / $absenreg * 100),2) }}%)</td>
+        <td>({{ round(($jumlahabsenreg / $absenreg * 100),2) }}%)</td>
+        @endif
+    </tr>
+    <tr>
+        <td>Jumlah Tidak Absen</td>
+        <td>: {{ ($absen->count() - $cuti->count() - $jumlahabsen )}}</td>
+        <td>({{ round((($absen->count() - $cuti->count() - $jumlahabsen ) / ($absen->count() - $cuti->count()) * 100),2) }}%)
+        </td>
+        <td>Eksekutif: {{ $absenekse - $jumlahabsenekse }}</td>
+        @if ($absenekse>0)
+        <td>({{ round((($absenekse - $jumlahabsenekse) / $absenekse * 100),2) }}%)</td>
+        @endif
+        <td>Reguler: {{ $absenreg - $jumlahabsenreg }}</td>
+        @if ($absenreg>0)
+        <td>({{ round((($absenreg - $jumlahabsenreg) / $absenreg * 100),2) }}%)</td>
         @endif
     </tr>
     <tr>
         <td>Terlambat</td>
+        <td>: {{$terlambat}}</td>
         @if ($jumlahabsen>0)
-        <td>: {{$terlambat}} ({{ round(($terlambat / $jumlahabsen * 100),2) }}%)
-        </td>
+        <td>({{ round(($terlambat / $jumlahabsen * 100),2) }}%)</td>
         @endif
+        <td>Eksekutif: {{$terlambatekse}}</td>
         @if ($jumlahabsenekse>0)
-        <td>Eksekutif: {{$terlambatekse}} ({{ round(($terlambatekse / $jumlahabsenekse * 100),2) }}%)</td>
+        <td>({{ round(($terlambatekse / $jumlahabsenekse * 100),2) }}%)</td>
         @endif
+        <td>Reguler: {{$terlambatreg}}</td>
         @if ($jumlahabsenreg)
-        <td>Reguler: {{$terlambatreg}} ({{ round(($terlambatreg / $jumlahabsenreg * 100),2) }}%)</td>
+        <td>({{ round(($terlambatreg / $jumlahabsenreg * 100),2) }}%)</td>
         @endif
     </tr>
     <tr>
         <td>Rata Rata Terlambat</td>
-        <td>: {{ round($avg,2) }} Menit</td>
-        <td>Eksekutif: {{ round($avgekse,2) }} Menit</td>
-        <td>Reguler: {{ round($avgreg,2) }} Menit</td>
+        <td>: {{ round($avg,2) }}</td>
+        <td>Menit</td>
+        <td>Eksekutif: {{ round($avgekse,2) }}</td>
+        <td>Menit</td>
+        <td>Reguler: {{ round($avgreg,2) }}</td>
+        <td>Menit</td>
     </tr>
     <tr>
         <td>Terlambat (kumulatif)</td>
-        <td>: {{ ($absen->count()-$cuti) - $jumlahabsen + $terlambat }}
-            ({{ round(((($absen->count()-$cuti) - $jumlahabsen + $terlambat)/ ($absen->count()-$cuti) * 100),2) }}%)
+        <td>: {{ ($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat }}</td>
+        <td>({{ round(((($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat)/ ($absen->count() - $cuti->count()) * 100),2) }}%)
         </td>
+        <td>Eksekutif: {{ $absenekse - $jumlahabsenekse + $terlambatekse }}</td>
         @if ($absenekse>0)
-        <td>Eksekutif:
-            {{ $absenekse - $jumlahabsenekse + $terlambatekse }}
-            ({{ round((($absenekse - $jumlahabsenekse + $terlambatekse)/ $absenekse * 100),2) }}%)
-        </td>
+        <td>({{ round((($absenekse - $jumlahabsenekse + $terlambatekse)/ $absenekse * 100),2) }}%)</td>
         @endif
+        <td>Reguler: {{ $absenreg - $jumlahabsenreg + $terlambatreg }}</td>
         @if ($absenreg>0)
-        <td>Reguler:
-            {{ $absenreg - $jumlahabsenreg + $terlambatreg }}
-            ({{ round((($absenreg - $jumlahabsenreg + $terlambatreg)/ $absenreg * 100),2) }}%)</td>
+        <td>({{ round((($absenreg - $jumlahabsenreg + $terlambatreg)/ $absenreg * 100),2) }}%)</td>
         @endif
     </tr>
 </table>
