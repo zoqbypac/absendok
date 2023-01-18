@@ -272,15 +272,15 @@ class AbsendokController extends Controller
             $absen = DB::connection('pgsql')
                 ->table('absensi')
                 ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
-                ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
-                ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
+                ->whereDate('tanggal', '>=', $request->input('dari'))
+                ->whereDate('tanggal', '<=', $request->input('sampai'))
                 ->get();
 
             $cuti = DB::connection('pgsql')
                 ->table('absensi')
                 ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
-                ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
-                ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
+                ->whereDate('tanggal', '>=', $request->input('dari'))
+                ->whereDate('tanggal', '<=', $request->input('sampai'))
                 ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
                 ->get();
             $absenekse = $absen->where('kategori', 'Eksekutif')->count() - $cuti->where('kategori', 'Eksekutif')->count();
