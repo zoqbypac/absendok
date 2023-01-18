@@ -11,6 +11,7 @@
                 <div class="basis-1/4">
                     <form action="{{ route('absenpulang',$cek->first()->absenid) }}" method="GET" onsubmit="btnPulang.disabled = true; return true;">
                         <button type="submit" name="btnPulang" class="btn btn-secondary">Selesai Praktik</button>
+                        <a class="btn  btn-accent text-3xl" href="https://simrs.herminahospitals.com/live" target="_blank"><img src="{{ asset('img/hinai.png') }}" width="20"> Hinai</a>
                     </form>
                 </div>
             @else
