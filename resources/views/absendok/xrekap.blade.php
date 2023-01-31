@@ -131,4 +131,27 @@
             </tr>
             @endforeach
     </table>
+    <table id="tdtidakpraktek" class="table w-full">
+        <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Nama Dokter</th>
+                <th>Poliklinik</th>
+                <th>Jam Mulai</th>
+                <th>Jam Selesai</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($absen->whereIn('keterangan',['Cuti','Tidak Praktek']) as $item)
+            <tr>
+                <td>{{ $item->tanggal }}</td>
+                <td>{{ $item->namadokter }}</td>
+                <td>{{ $item->poliklinik }}</td>
+                <td>{{ $item->jam_mulai }}</td>
+                <td>{{ $item->jam_selesai }}</td>
+                <td>{{ $item->keterangan }}</td>
+            </tr>
+            @endforeach
+    </table>
 </div>

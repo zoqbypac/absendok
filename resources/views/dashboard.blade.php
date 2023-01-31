@@ -34,9 +34,9 @@
                     <tbody>
                         @foreach ($jadwalhariini as $item)
                         <tr>
-                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ $item->poliklinik }}</td>
-                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">({{ $item->jam_mulai }} - {{ $item->jam_selesai }}) {{ $item->waktu }}</td>
-                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? "bg-warning" : ""  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Prakter'])) ? $item->keterangan : ""  }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? "bg-warning" : ""  }}">{{ $item->poliklinik }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? "bg-warning" : ""  }}">({{ $item->jam_mulai }} - {{ $item->jam_selesai }}) {{ $item->waktu }}</td>
+                            <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? "bg-warning" : ""  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? $item->keterangan : ""  }}</td>
                         </tr>    
                         @endforeach
                     </tbody>
@@ -46,6 +46,7 @@
             <div class="basis-1/4">
             <div class="font-semibold text-2xl text-gray-800 leading-tight">
                 {{ __('Dashboard') }}
+                <a class="btn  btn-accent text-3xl" href="https://simrs.herminahospitals.com/live" target="_blank"><img src="{{ asset('img/hinai.png') }}" width="20"> Hinai</a>
             </div>
             </div>
             @endif

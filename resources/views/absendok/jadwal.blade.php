@@ -35,7 +35,8 @@
                 @endif
                 <div class="px-6 py-6">
                     <a href="#input-jadwal" class="btn btn-sm btn-primary">input</a>
-                    <a href="#input-cuti" class="btn btn-sm btn-success" type="submit">cuti / TP</a>  
+                    <a href="#input-cuti" class="btn btn-sm btn-success" type="submit">cuti</a>
+                    <a href="#input-tp" class="btn btn-sm btn-success" type="submit">tp</a>  
                     <a href="#hapus-jadwal" class="btn btn-sm btn-secondary" type="submit">hapus</a>
                     <a href="{{ route('xjadwaldokter') }}" class="btn btn-sm btn-info" type="submit">Eksport</a>  
                 </div>
@@ -115,6 +116,9 @@
                     <!-- modal input jadwal cuti dokter --> 
                     <div class="modal" id="input-cuti">
                         <div class="modal-box">
+                            <div class="font-semibold text-3xl text-gray-800 leading-tight">
+                                {{ __('Input Jadwal Cuti') }}
+                            </div>
                             <form action="{{ route('jadwalcuti') }}" method="post">
                                 @csrf
                                <div class="form-control">
@@ -135,15 +139,33 @@
                                     <input type="date" name="tglawal" id="tglawal" value="{{ request()->get('tglawal') ?? date('Y-m-d')}}" class="input input-bordered"> s.d. 
                                     <input type="date" name="tglakhir" id="tglakhir" value="{{ request()->get('tglakhir') ?? date('Y-m-d')}}" class="input input-bordered"> 
                                 </div>
-                                <div class="form-control">
-                                <label class="label">
-                                    <span class="label-text">Keterangan</span>
-                                </label>
-                                <select name="keterangan" class="select select-bordered">
-                                    <option value="Cuti">Cuti</option>
-                                    <option value="Tidak Praktek">Tidak Praktek</option>
-                                </select>
+                                <div class="modal-action">
+                                    <button class="btn btn-sm btn-success">submit</button>
+                                    <a href="#" class="btn btn-sm">batal</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- modal input jadwal tp dokter --> 
+                    <div class="modal" id="input-tp">
+                        <div class="modal-box">
+                            <div class="font-semibold text-3xl text-gray-800 leading-tight">
+                                {{ __('Input Jadwal Tidak Praktek') }}
                             </div>
+                            <form action="{{ route('jadwalcuti') }}" method="post">
+                                @csrf
+                               <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text">Nama Dokter</span>
+                                    </label>
+                                    <input list="namadokters" name="absenid" class="input input-bordered" />
+                                        <datalist id="namadokters">
+                                            @foreach ($absensi as $n)
+                                            
+                                            <option value="{{ $n->absenid }} | {{ $n->namadokter }} | {{ $n->hari }} : {{ $n->jam_mulai }}-{{ $n->jam_selesai }}">
+                                            @endforeach
+                                        </datalist>
+                                </div>
                                 <div class="modal-action">
                                     <button class="btn btn-sm btn-success">submit</button>
                                     <a href="#" class="btn btn-sm">batal</a>
@@ -211,28 +233,57 @@
                         </table>
                     </div>
                     </div>
-                    <div class="basis-1/4">
-                        <table id="cuti" class="table">
-                            <thead>
-                                <tr>
-                                    <th>Dokter Cuti / Tidak praktik Hari ini</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($cuti as $item)
-                                <tr>
-                                    <td>{{ $item->namadokter }}</td>
-                                    <td>
-                                        <form action="{{ route('hapuscuti') }}" method="get">
-                                        <input type="hidden" name="id" value="{{ $item->cutiid }}">
-                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Anda yakin ingin menghapus cuti {{ $item->namadokter }}?') ">Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>    
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="wrapper basis-1/4">
+                        <div class="tabs">
+                            <button data-id="cuti" class="tab tab-lifted tab-active">Cuti</button>
+                            <button data-id="tp" class="tab tab-lifted">TP</button>
+                        </div>
+                        <div id=cuti class="content">
+                            <table id="tdcuti" class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Dokter Cuti Hari ini</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($cuti as $item)
+                                    <tr>
+                                        <td>{{ $item->namadokter }}</td>
+                                        <td>
+                                            <form action="{{ route('hapuscuti') }}" method="get">
+                                            <input type="hidden" name="id" value="{{ $item->cutiid }}">
+                                            <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Anda yakin ingin menghapus cuti {{ $item->namadokter }}?') ">Hapus</button>
+                                            </form>
+                                        </td>
+                                    </tr>    
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id=tp class="content hidden">
+                            <table id="tdtp" class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Dokter Tidak praktik Hari ini</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($absensi->where('keterangan','Tidak Praktek') as $item)
+                                    <tr>
+                                        <td>{{ $item->namadokter }}</td>
+                                        <td>
+                                            <form action="{{ route('hapuscuti') }}" method="get">
+                                            <input type="hidden" name="absenid" value="{{ $item->absenid }}">
+                                            <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Anda yakin ingin menghapus TP {{ $item->namadokter }}?') ">Hapus</button>
+                                            </form>
+                                        </td>
+                                    </tr>    
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>    
                 
@@ -242,7 +293,34 @@
     <script>
         $(document).ready( function () {
             $('#app').DataTable();
-            $('#cuti').DataTable();
+            $("#tdcuti").DataTable();
         });
+        const tabs = document.querySelector(".wrapper");
+        const tabButton = document.querySelectorAll(".tab");
+        const contents = document.querySelectorAll(".content");
+
+        tabs.onclick = e => {
+            const id = e.target.dataset.id;
+
+            if (id) {
+                tabButton.forEach(btn => {
+                    btn.classList.remove("tab-active");
+                });
+                e.target.classList.add("tab-active");
+
+                contents.forEach(content => {
+                    content.classList.add("hidden");
+                });
+                const element = document.getElementById(id);
+                element.classList.remove("hidden");
+
+            }
+            if (id == 'cuti') {
+                $("#tdcuti").DataTable();
+            } else {
+                $("#tdtp").DataTable();
+            }
+
+        }
     </script>
 </x-app-layout>

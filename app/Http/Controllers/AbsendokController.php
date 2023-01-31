@@ -171,6 +171,19 @@ class AbsendokController extends Controller
             }
         }
 
+        $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
+        //  dd($cekcuti);   
+        if ($cekcuti->count() > 0) {
+            foreach ($cekcuti as $cuti) {
+                Absensi::where([
+                    ['tanggal', $tanggal_ini],
+                    ['kodedokter', $cuti->kodedokter]
+                ])
+                    ->update([
+                        'keterangan' => $cuti->keterangan,
+                    ]);
+            }
+        }
 
         if ($request->input('dari') <= $request->input('sampai')) {
             $absen = DB::connection('pgsql')
@@ -315,8 +328,9 @@ class AbsendokController extends Controller
         $cuti = CutiDokter::whereDate('tglawal', '<=', Carbon::today())->whereDate('tglakhir', '>=', Carbon::today())->get();
         $poliklinik = JadwalDokter::distinct()->get(['poliklinik']);
         $userdokter = User::where('department', 'Dokter Spesialis')->get();
+        $absensi = Absensi::whereDate('tanggal',Carbon::today())->get();
 
-        return view('absendok.jadwal', compact('jadwal', 'random', 'dokter', 'cuti', 'poliklinik', 'userdokter'));
+        return view('absendok.jadwal', compact('jadwal', 'random', 'dokter', 'cuti', 'poliklinik', 'userdokter', 'absensi'));
     }
 
     public function jadwalstore(Request $request)
@@ -350,11 +364,21 @@ class AbsendokController extends Controller
 
     public function jadwalcuti(Request $request)
     {
+        if ($request->input('absenid')) {
+            $this->validate($request, [
+                'absenid' => 'required',
+            ]);
+            $result = $request->input('absenid');
+            $result_explode = explode('|', $result);
+            Absensi::find($result_explode[0])->update([
+                'keterangan'=>'Tidak Praktek'
+            ]);
+            return redirect('jadwaldokter')->with('sukses', 'Cuti Dokter Berhasil di Input');
+        }
         $this->validate($request, [
             'namadokter' => 'required',
             'tglawal' => 'required',
             'tglakhir' => 'required',
-            'keterangan' => 'required',
         ]);
         $result = $request->input('namadokter');
         $result_explode = explode('|', $result);
@@ -364,7 +388,7 @@ class AbsendokController extends Controller
                 'namadokter' => $result_explode[1],
                 'tglawal' => $request->input('tglawal'),
                 'tglakhir' => $request->input('tglakhir'),
-                'keterangan' => $request->input('keterangan'),
+                'keterangan' => 'Cuti',
             ]);
             return redirect('jadwaldokter')->with('sukses', 'Cuti Dokter Berhasil di Input');
         } else {
@@ -374,6 +398,11 @@ class AbsendokController extends Controller
 
     public function hapuscuti(Request $request)
     {
+        if($request->input('absenid')){
+            Absensi::find($request->input('absenid'))->update(['keterangan'=>null]);
+            return redirect('jadwaldokter')->with('sukses', 'TP Dokter Berhasil di Hapus');
+        }
+        
         $cuti = CutiDokter::find($request->input('id'));
         Absensi::where([
             ['kodedokter', $cuti->kodedokter],
