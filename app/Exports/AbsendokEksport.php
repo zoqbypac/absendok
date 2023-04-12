@@ -6,9 +6,9 @@ use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class AbsensiEksport implements FromView, ShouldAutoSize
+class AbsendokEksport implements FromView, ShouldAutoSize
 {
-    public function __construct($cuti, $tanggal, $absen, $absenekse, $absenreg, $jumlahabsen, $jumlahabsenekse, $jumlahabsenreg, $terlambat, $terlambatekse, $terlambatreg, $avg, $avgekse, $avgreg)
+    public function __construct($cuti, $tanggal, $absen, $absenekse, $absenreg, $jumlahabsen, $jumlahabsenekse, $jumlahabsenreg, $terlambat, $terlambatekse, $terlambatreg, $avg, $avgekse, $avgreg, $dokter)
     {
         $this->absen = $absen;
         $this->cuti = $cuti;
@@ -24,11 +24,12 @@ class AbsensiEksport implements FromView, ShouldAutoSize
         $this->avgekse = $avgekse;
         $this->avgreg = $avgreg;
         $this->tanggal = $tanggal;
+        $this->dokter = $dokter;
     }
 
     public function view(): View
     {
-        return view('absendok.xrekap', [
+        return view('absendok.xrekapdok', [
             'tanggal' => $this->tanggal,
             'absen' => $this->absen,
             'absenekse' => $this->absenekse,
@@ -43,6 +44,7 @@ class AbsensiEksport implements FromView, ShouldAutoSize
             'avgekse' => $this->avgekse,
             'avgreg' => $this->avgreg,
             'cuti' => $this->cuti,
+            'dokter' => $this->dokter,
         ]);
     }
 }

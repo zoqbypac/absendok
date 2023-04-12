@@ -35,11 +35,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/absendok', [AbsendokController::class, 'absendok'])->name('absendok');
     Route::get('/absenpulang/{id}', [AbsendokController::class, 'absenpulang'])->name('absenpulang');
     Route::get('/rekapabsen', [AbsendokController::class, 'rekapabsen'])->name('rekapabsen');
+    Route::get('/rekapabsen/dokter', [AbsendokController::class, 'rekapabsendok'])->name('rekapabsendok');
     Route::get('/chatgroup', [AbsendokController::class, 'chatgroup'])->name('chatgroup');
     Route::get('/getchatgroup', [AbsendokController::class, 'getchatgroup'])->name('getchatgroup');
     Route::get('/getinfo', [AbsendokController::class, 'getinfo'])->name('getinfo');
     Route::get('/cekinfo', [AbsendokController::class, 'cekinfo']);
     Route::get('/rekapabsen/export/', [AbsendokController::class, 'export'])->name('xrekapabsen');
+    Route::get('/rekapabsen/dokter/export/', [AbsendokController::class, 'exportdok'])->name('xrekapabsendok');
     Route::get('/jadwaldokter', [AbsendokController::class, 'jadwal'])->name('jadwaldokter');
     Route::post('/jadwalstore', [AbsendokController::class, 'jadwalstore'])->name('jadwalstore');
     Route::get('xjadwaldokter', [AbsendokController::class, 'xjadwal'])->name('xjadwaldokter');

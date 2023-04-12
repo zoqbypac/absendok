@@ -41,6 +41,11 @@
                         {{ __('Absensi') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('rekapabsendok')" :active="request()->routeIs('rekapabsendok')">
+                        {{ __('Absensi Per Dokter') }}
+                    </x-nav-link>
+                </div>
                 @endif
             </div>
             

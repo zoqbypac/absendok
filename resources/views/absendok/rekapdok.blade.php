@@ -1,15 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            <form action="{{ route('rekapabsen') }}" method="GET">
+            <form action="{{ route('rekapabsendok') }}" method="GET">
                 {{ __('Rekap Absensi Dokter: ') }}
                 <input type="date" name="dari" id="dari" value="{{ request()->get('dari') ?? date('Y-m-d')}}"
                     class="input input-sm input-bordered"> -
                 <input type="date" name="sampai" id="sampai" value="{{ request()->get('sampai') ?? date('Y-m-d')}}"
                     class="input input-sm input-bordered">
+                <select name="dr" class="select select-sm select-bordered w-full max-w-xs">
+                    <option disabled selected>pilih dokter ..</option>
+                    @foreach ($dokter as $item)
+                        <option value="{{$item->employee}}" {{ (request()->dr == $item->employee)?'selected':'' }}>{{ $item->name }}</option>
+                    @endforeach
+                </select>
                 <button type="submit" class="btn btn-sm btn-primary"
                     onclick="this.disabled=true;this.value='Submitting...'; this.form.submit();">refresh</button>
-                <button formaction="{{ route('xrekapabsen') }}" class="btn btn-sm btn-secondary"
+                <button formaction="{{ route('xrekapabsendok') }}" class="btn btn-sm btn-secondary"
                     type="submit">Eksport</button>
                 @if($errors->any())
                 <div class="alert alert-error shadow-lg">
@@ -25,7 +31,7 @@
             </form>
         </h2>
     </x-slot>
-    @if ($absen->count() > 0)
+    @if (request()->dr)
     <div class="py-12">
         <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

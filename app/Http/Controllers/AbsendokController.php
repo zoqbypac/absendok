@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\AbsensiEksport;
+use App\Exports\AbsendokEksport;
 use App\Exports\JadwalDokterEksport;
 use App\Imports\JadwalDokterImport;
 use App\Models\Absensi;
@@ -237,6 +238,101 @@ class AbsendokController extends Controller
             return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
         }
     }
+
+    public function rekapabsendok(Request $request)
+    {
+        $tanggal_ini = Carbon::today();
+        $hari_ini = Carbon::now()->isoFormat('dddd');
+
+        $dokter = User::where('department','Dokter Spesialis')->orderBy('name')->get();
+        //cek jadwal
+        $cekjadwal = JadwalDokter::where('hari', 'like', $hari_ini)->get();
+        $cekabsensi = Absensi::where('tanggal', $tanggal_ini)->get();
+        if ($cekjadwal->count() > $cekabsensi->count()) {
+            foreach ($cekjadwal as $jadwal) {
+                Absensi::updateOrCreate([
+                    'jadwalid' => $jadwal->jadwalid,
+                    'tanggal' => $tanggal_ini,
+                    'kodedokter' => $jadwal->kodedokter,
+                    'namadokter' => $jadwal->namadokter,
+                    'poliklinik' => $jadwal->poliklinik,
+                    'hari' => $jadwal->hari,
+                    'waktu' => $jadwal->waktu,
+                ], [
+                    'jam_mulai' => $jadwal->jam_mulai,
+                    'jam_selesai' => $jadwal->jam_selesai,
+                ]);
+            }
+        }
+
+        $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
+        //  dd($cekcuti);   
+        if ($cekcuti->count() > 0) {
+            foreach ($cekcuti as $cuti) {
+                Absensi::where([
+                    ['tanggal', $tanggal_ini],
+                    ['kodedokter', $cuti->kodedokter]
+                ])
+                    ->update([
+                        'keterangan' => $cuti->keterangan,
+                    ]);
+            }
+        }
+
+        if ($request->input('dari') <= $request->input('sampai')) {
+            $absen = DB::connection('pgsql')
+                ->table('absensi')
+                ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->where('kodedokter',$request->dr)
+                ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
+                ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
+                ->get();
+
+            $cuti = DB::connection('pgsql')
+                ->table('absensi')
+                ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
+                ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
+                ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
+                ->get();
+            $absenekse = $absen->where('kategori', 'Eksekutif')->count() - $cuti->where('kategori', 'Eksekutif')->count();
+            $absenreg = $absen->where('kategori', 'Reguler')->count() - $cuti->where('kategori', 'Reguler')->count();
+            $jumlahabsen = $absen->where('jam_masuk', '!=', null)->count();
+            $jumlahabsenekse = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Eksekutif')->count();
+            $jumlahabsenreg = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Reguler')->count();
+            $terlambat = $absen->where('keterangan', 'Terlambat')->count();
+            $terlambatekse = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Eksekutif')->count();
+            $terlambatreg = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Reguler')->count();
+
+
+            $avg = $absen->where('keterangan', 'Terlambat')
+            ->average('selisih_masuk');
+            $avgekse = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Eksekutif')
+            ->average('selisih_masuk');
+            $avgreg = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Reguler')
+            ->average('selisih_masuk');
+
+
+            return view('absendok.rekapdok', compact(
+                'absen',
+                'cuti',
+                'avg',
+                'avgekse',
+                'avgreg',
+                'absenekse',
+                'absenreg',
+                'jumlahabsen',
+                'jumlahabsenekse',
+                'jumlahabsenreg',
+                'terlambat',
+                'terlambatekse',
+                'terlambatreg',
+                'dokter'
+            ));
+        } else {
+            return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
+        }
+    }
     
     public function chatgroup(Request $request)
     {
@@ -288,7 +384,7 @@ class AbsendokController extends Controller
                 ->whereDate('tanggal', '>=', $request->input('dari'))
                 ->whereDate('tanggal', '<=', $request->input('sampai'))
                 ->get();
-
+            
             $cuti = DB::connection('pgsql')
                 ->table('absensi')
                 ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
@@ -315,6 +411,52 @@ class AbsendokController extends Controller
             $tanggal = Carbon::parse($request->input('dari'))->isoFormat('DD MMMM YYYY') . ' - ' . Carbon::parse($request->input('sampai'))->isoFormat('DD MMMM YYYY');
 
             return Excel::download(new AbsensiEksport($cuti, $tanggal, $absen, $absenekse, $absenreg, $jumlahabsen, $jumlahabsenekse, $jumlahabsenreg, $terlambat, $terlambatekse, $terlambatreg, $avg, $avgekse, $avgreg), 'Absensi ' . $tanggal . '.xlsx');
+        } else {
+            return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
+        }
+    }
+
+    public function exportdok(Request $request)
+    {
+        if ($request->input('dari') <= $request->input('sampai')) {
+            $absen = DB::connection('pgsql')
+                ->table('absensi')
+                ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->where('kodedokter',$request->dr)
+                ->whereDate('tanggal', '>=', $request->input('dari'))
+                ->whereDate('tanggal', '<=', $request->input('sampai'))
+                ->get();
+            
+            $dokters = User::where('employee',$request->dr)->get();
+            $dokter = $dokters[0]->name;
+            $cuti = DB::connection('pgsql')
+                ->table('absensi')
+                ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->where('kodedokter', $request->dr)
+                ->whereDate('tanggal', '>=', $request->input('dari'))
+                ->whereDate('tanggal', '<=', $request->input('sampai'))
+                ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
+                ->get();
+            
+            $absenekse = $absen->where('kategori', 'Eksekutif')->count() - $cuti->where('kategori', 'Eksekutif')->count();
+            $absenreg = $absen->where('kategori', 'Reguler')->count() - $cuti->where('kategori', 'Reguler')->count();
+            $jumlahabsen = $absen->where('jam_masuk', '!=', null)->count();
+            $jumlahabsenekse = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Eksekutif')->count();
+            $jumlahabsenreg = $absen->where('jam_masuk', '!=', null)->where('kategori', 'Reguler')->count();
+            $terlambat = $absen->where('keterangan', 'Terlambat')->count();
+            $terlambatekse = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Eksekutif')->count();
+            $terlambatreg = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Reguler')->count();
+
+
+            $avg = $absen->where('keterangan', 'Terlambat')
+            ->average('selisih_masuk');
+            $avgekse = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Eksekutif')
+            ->average('selisih_masuk');
+            $avgreg = $absen->where('keterangan', 'Terlambat')->where('kategori', 'Reguler')
+            ->average('selisih_masuk');
+            $tanggal = Carbon::parse($request->input('dari'))->isoFormat('DD MMMM YYYY') . ' - ' . Carbon::parse($request->input('sampai'))->isoFormat('DD MMMM YYYY');
+
+            return Excel::download(new AbsendokEksport($cuti, $tanggal, $absen, $absenekse, $absenreg, $jumlahabsen, $jumlahabsenekse, $jumlahabsenreg, $terlambat, $terlambatekse, $terlambatreg, $avg, $avgekse,$avgreg, $dokter), 'Absensi ' . $tanggal . '.xlsx');
         } else {
             return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
         }

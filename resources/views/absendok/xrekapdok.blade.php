@@ -1,6 +1,6 @@
 <table class="table table-zebra table-compact">
     <tr>
-        <th colspan="7">Rekap Absensi Dokter - {{ $tanggal }}</th>
+        <th colspan="7">Rekap Absensi - {{$dokter}} - {{ $tanggal }}</th>
     </tr>
                         <tr>
                             <td class="border-y border-l border-stone-400">Jumlah Jadwal</td>
