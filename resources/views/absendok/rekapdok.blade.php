@@ -14,7 +14,7 @@
                     @endforeach
                 </select>
                 <button type="submit" class="btn btn-sm btn-primary"
-                    onclick="this.disabled=true;this.value='Submitting...'; this.form.submit();">refresh</button>
+                    onclick="this.disabled=true;this.value='Submitting...'; this.form.submit();">view</button>
                 <button formaction="{{ route('xrekapabsendok') }}" class="btn btn-sm btn-secondary"
                     type="submit">Eksport</button>
                 @if($errors->any())
@@ -45,7 +45,7 @@
                             <td class="border-y border-l border-r border-stone-400">Reguler: {{$absenreg}}</td>
                         </tr>
                         <tr>
-                            <td class="border-y border-l border-stone-400">Jumlah Absen</td>
+                            <td class="border-y border-l border-stone-400">Jumlah Kehadiran</td>
                             <td class="border-y border-stone-400">: {{ $jumlahabsen }}</td>
                             <td class="border-y border-stone-400">
                             @if (($absen->count() - $cuti->count()) > 0)    
@@ -66,7 +66,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="border-y border-l border-stone-400">Jumlah Tidak Absen</td>
+                            <td class="border-y border-l border-stone-400">Jumlah Tidak Hadir</td>
                             <td class="border-y border-stone-400">:
                                 {{ ($absen->count() - $cuti->count() - $jumlahabsen )}}</td>
                             <td class="border-y border-stone-400">

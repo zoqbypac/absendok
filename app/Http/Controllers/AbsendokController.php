@@ -291,6 +291,7 @@ class AbsendokController extends Controller
             $cuti = DB::connection('pgsql')
                 ->table('absensi')
                 ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->where('kodedokter', $request->dr)
                 ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
                 ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
                 ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
