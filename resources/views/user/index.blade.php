@@ -88,12 +88,12 @@
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->department }}</td>
                                         <td>
-                                            <a href="#my-modal-2" class="btn btn-sm btn-success">reset</a>
+                                            <a href="#{{ $item->employee }}" class="btn btn-sm btn-success">reset</a>
                                             <a href="{{ route('hapususer',$item->id) }}"
                                                 class="btn btn-sm btn-secondary"
                                                 onclick="return confirm('Anda yakin ingin menghapus user ini?') ">Hapus</a>
                                             <!-- Put this part before </body> tag -->
-                                            <div class="modal" id="my-modal-2">
+                                            <div class="modal" id="{{ $item->employee }}">
                                                 <div class="modal-box">
                                                     <form action="{{ route('ubahpassword') }}" method="post">
                                                         @csrf
