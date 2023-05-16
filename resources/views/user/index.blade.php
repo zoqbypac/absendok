@@ -101,7 +101,7 @@
                                                             <label class="label">
                                                                 <span class="label-text">Password Baru</span>
                                                             </label>
-                                                            <input type="text" name="password" id="password"
+                                                            <input type="password" name="password" id="password"
                                                                 class="input input-bordered">
                                                         </div>
                                                         <input type="hidden" name="id" value="{{$item->id}}">
