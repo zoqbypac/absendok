@@ -63,7 +63,7 @@ class AbsendokController extends Controller
         }
 
         $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
-        //  dd($cekcuti);   
+        //  dd($cekcuti);
         if ($cekcuti->count() > 0) {
             foreach ($cekcuti as $cuti) {
                 Absensi::where([
@@ -100,8 +100,8 @@ class AbsendokController extends Controller
     {
         if ($request->input('jadwal')) {
 
-            $jadwal = Absensi::where('absenid', $request->input('jadwal'))->get();
-            if (((strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal[0]->jam_mulai)) / 60) > 15) {
+            $jadwal = Absensi::where('absenid', $request->input('jadwal'))->latest()->first();
+            if (((strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal->jam_mulai)) / 60) > 15) {
                 $status = 'Terlambat';
             } else {
                 $status = null;
@@ -113,13 +113,13 @@ class AbsendokController extends Controller
             ])
                 ->update([
                     'jam_masuk' => Carbon::now()->isoFormat('HH:mm'),
-                    'selisih_masuk' => (strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal[0]->jam_mulai)) / 60,
+                    'selisih_masuk' => (strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal->jam_mulai)) / 60,
                     'keterangan' => $status,
                 ]);
             Info::insert([
-                'userid' => $jadwal[0]->kodedokter,
+                'userid' => $jadwal->kodedokter,
                 'waktu' => now(),
-                'pesan' => $jadwal[0]->namadokter . ' Praktik di ' . $jadwal[0]->poliklinik,
+                'pesan' => $jadwal->namadokter . ' Praktik di ' . $jadwal->poliklinik,
                 'created_at' => now()
             ]);
             return redirect('dashboard');
@@ -173,7 +173,7 @@ class AbsendokController extends Controller
         }
 
         $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
-        //  dd($cekcuti);   
+        //  dd($cekcuti);
         if ($cekcuti->count() > 0) {
             foreach ($cekcuti as $cuti) {
                 Absensi::where([
@@ -266,7 +266,7 @@ class AbsendokController extends Controller
         }
 
         $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
-        //  dd($cekcuti);   
+        //  dd($cekcuti);
         if ($cekcuti->count() > 0) {
             foreach ($cekcuti as $cuti) {
                 Absensi::where([
@@ -334,7 +334,7 @@ class AbsendokController extends Controller
             return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
         }
     }
-    
+
     public function chatgroup(Request $request)
     {
         DB::connection('pgsql')
@@ -347,7 +347,7 @@ class AbsendokController extends Controller
             ]);
     }
     public function getchatgroup(Request $request)
-    {    
+    {
         $chat = DB::connection('pgsql')
             ->table('chat_groups')
             ->join('users', 'chat_groups.userid', '=', 'users.employee')
@@ -365,9 +365,9 @@ class AbsendokController extends Controller
                     ->table('chat_groups')
                     ->whereDate('waktu', Carbon::today())
                     ->count();
-                
+
             return response()->json(array('info' => $info, 'chat' => $chat), 200);
-        
+
     }
     public function getinfo(Request $request)
     {
@@ -385,7 +385,7 @@ class AbsendokController extends Controller
                 ->whereDate('tanggal', '>=', $request->input('dari'))
                 ->whereDate('tanggal', '<=', $request->input('sampai'))
                 ->get();
-            
+
             $cuti = DB::connection('pgsql')
                 ->table('absensi')
                 ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
@@ -427,7 +427,7 @@ class AbsendokController extends Controller
                 ->whereDate('tanggal', '>=', $request->input('dari'))
                 ->whereDate('tanggal', '<=', $request->input('sampai'))
                 ->get();
-            
+
             $dokters = User::where('employee',$request->dr)->get();
             $dokter = $dokters[0]->name;
             $cuti = DB::connection('pgsql')
@@ -438,7 +438,7 @@ class AbsendokController extends Controller
                 ->whereDate('tanggal', '<=', $request->input('sampai'))
                 ->whereIn('keterangan', ['Cuti', 'Tidak Praktek'])
                 ->get();
-            
+
             $absenekse = $absen->where('kategori', 'Eksekutif')->count() - $cuti->where('kategori', 'Eksekutif')->count();
             $absenreg = $absen->where('kategori', 'Reguler')->count() - $cuti->where('kategori', 'Reguler')->count();
             $jumlahabsen = $absen->where('jam_masuk', '!=', null)->count();
@@ -545,7 +545,7 @@ class AbsendokController extends Controller
             Absensi::find($request->input('absenid'))->update(['keterangan'=>null]);
             return redirect('jadwaldokter')->with('sukses', 'TP Dokter Berhasil di Hapus');
         }
-        
+
         $cuti = CutiDokter::find($request->input('id'));
         Absensi::where([
             ['kodedokter', $cuti->kodedokter],
