@@ -4,18 +4,18 @@
             <form action="{{ route('rekapabsendok') }}" method="GET">
                 {{ __('Rekap Absensi Dokter: ') }}
                 <input type="date" name="dari" id="dari" value="{{ request()->get('dari') ?? date('Y-m-d')}}"
-                    class="input input-sm input-bordered"> -
+                    class="input input-bordered"> -
                 <input type="date" name="sampai" id="sampai" value="{{ request()->get('sampai') ?? date('Y-m-d')}}"
-                    class="input input-sm input-bordered">
-                <select name="dr" class="select select-sm select-bordered w-full max-w-xs">
-                    <option disabled selected>pilih dokter ..</option>
+                    class="input input-bordered">
+                <select name="dr" class="select select-bordered w-full max-w-xs">
+                    <option disabled selected>Pilih Dokter ...</option>
                     @foreach ($dokter as $item)
                         <option value="{{$item->employee}}" {{ (request()->dr == $item->employee)?'selected':'' }}>{{ $item->name }}</option>
                     @endforeach
                 </select>
-                <button type="submit" class="btn btn-sm btn-primary"
+                <button type="submit" class="btn btn-primary"
                     onclick="this.disabled=true;this.value='Submitting...'; this.form.submit();">view</button>
-                <button formaction="{{ route('xrekapabsendok') }}" class="btn btn-sm btn-secondary"
+                <button formaction="{{ route('xrekapabsendok') }}" class="btn btn-secondary"
                     type="submit">Eksport</button>
                 @if($errors->any())
                 <div class="alert alert-error shadow-lg">
@@ -36,7 +36,8 @@
         <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <table class="table table-zebra table-compact">
+                    <div class="w-[600px]">
+                        <table class="table table-zebra table-xs">
                         <tr>
                             <td class="border-y border-l border-stone-400">Jumlah Jadwal</td>
                             <td class="border-y border-r border-stone-400">: {{ ($absen->count() - $cuti->count()) }}
@@ -48,19 +49,19 @@
                             <td class="border-y border-l border-stone-400">Jumlah Kehadiran</td>
                             <td class="border-y border-stone-400">: {{ $jumlahabsen }}</td>
                             <td class="border-y border-stone-400">
-                            @if (($absen->count() - $cuti->count()) > 0)    
+                            @if (($absen->count() - $cuti->count()) > 0)
                                 ({{ round(($jumlahabsen / ($absen->count() - $cuti->count()) * 100),2) }}%)
                             @endif
                             </td>
                             <td class="border-y border-l border-stone-400">Eksekutif: {{ $jumlahabsenekse }}</td>
                             <td class="border-y border-stone-400">
-                            @if ($absenekse>0)    
+                            @if ($absenekse>0)
                                 ({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)
                             @endif
                             </td>
                             <td class="border-y border-l border-stone-400">Reguler: {{ $jumlahabsenreg }}</td>
                             <td class="border-y border-r border-stone-400">
-                            @if ($absenreg>0)    
+                            @if ($absenreg>0)
                                 ({{ round(($jumlahabsenreg / $absenreg * 100),2) }}%)
                             @endif
                             </td>
@@ -77,14 +78,14 @@
                             <td class="border-y border-l border-stone-400">Eksekutif:
                                 {{ $absenekse - $jumlahabsenekse }}</td>
                             <td class="border-y border-stone-400">
-                            @if ($absenekse>0)    
+                            @if ($absenekse>0)
                                 ({{ round((($absenekse - $jumlahabsenekse) / $absenekse * 100),2) }}%)
                             @endif
                             </td>
                             <td class="border-y border-l border-stone-400">Reguler: {{ $absenreg - $jumlahabsenreg }}
                             </td>
                             <td class="border-y border-r border-stone-400">
-                            @if ($absenreg>0)    
+                            @if ($absenreg>0)
                                 ({{ round((($absenreg - $jumlahabsenreg) / $absenreg * 100),2) }}%)
                             @endif
                             </td>
@@ -93,19 +94,19 @@
                             <td class="border-y border-l border-stone-400">Terlambat</td>
                             <td class="border-y border-stone-400">: {{$terlambat}}</td>
                             <td class="border-y border-stone-400">
-                            @if ($jumlahabsen>0)    
+                            @if ($jumlahabsen>0)
                                 ({{ round(($terlambat / $jumlahabsen * 100),2) }}%)
                             @endif
                             </td>
                             <td class="border-y border-l border-stone-400">Eksekutif: {{$terlambatekse}}</td>
                             <td class="border-y border-stone-400">
-                            @if ($jumlahabsenekse>0)    
+                            @if ($jumlahabsenekse>0)
                                 ({{ round(($terlambatekse / $jumlahabsenekse * 100),2) }}%)
                             @endif
                             </td>
                             <td class="border-y border-l border-stone-400">Reguler: {{$terlambatreg}}</td>
                             <td class="border-y border-r border-stone-400">
-                            @if ($jumlahabsenreg)    
+                            @if ($jumlahabsenreg)
                                 ({{ round(($terlambatreg / $jumlahabsenreg * 100),2) }}%)
                             @endif
                             </td>
@@ -124,7 +125,7 @@
                             <td class="border-y border-stone-400">:
                                 {{ ($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat }}</td>
                             <td class="border-y border-stone-400">
-                            @if (($absen->count() - $cuti->count()) > 0)    
+                            @if (($absen->count() - $cuti->count()) > 0)
                                 ({{ round(((($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat)/ ($absen->count() - $cuti->count()) * 100),2) }}%)
                             @endif
                             </td>
@@ -138,12 +139,13 @@
                             <td class="border-y  border-l border-stone-400">Reguler:
                                 {{ $absenreg - $jumlahabsenreg + $terlambatreg }}</td>
                             <td class="border-y border-r border-stone-400">
-                            @if ($absenreg>0)    
+                            @if ($absenreg>0)
                                 ({{ round((($absenreg - $jumlahabsenreg + $terlambatreg)/ $absenreg * 100),2) }}%)
                             @endif
                             </td>
                         </tr>
                     </table>
+                    </div>
                     <div class="wrapper mt-2 overflow-x-auto">
                         <div class="tabs">
                             <button data-id="absen" class="tab tab-lg tab-lifted tab-active">Absen</button>
@@ -260,7 +262,7 @@
             }
             if (id == 'absen') {
                 $("#tdabsen").DataTable();
-            } 
+            }
             if (id == 'tidakabsen') {
                 $("#tdtidakabsen").DataTable();
             }

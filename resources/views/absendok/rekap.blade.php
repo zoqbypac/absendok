@@ -30,114 +30,116 @@
         <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <table class="table table-zebra table-compact">
-                        <tr>
-                            <td class="border-y border-l border-stone-400">Jumlah Jadwal</td>
-                            <td class="border-y border-r border-stone-400">: {{ ($absen->count() - $cuti->count()) }}
-                            </td>
-                            <td class="border-y border-l border-r border-stone-400">Eksekutif: {{$absenekse}}</td>
-                            <td class="border-y border-l border-r border-stone-400">Reguler: {{$absenreg}}</td>
-                        </tr>
-                        <tr>
-                            <td class="border-y border-l border-stone-400">Jumlah Kehadiran</td>
-                            <td class="border-y border-stone-400">: {{ $jumlahabsen }}</td>
-                            <td class="border-y border-stone-400">
-                            @if (($absen->count() - $cuti->count()) > 0)    
-                                ({{ round(($jumlahabsen / ($absen->count() - $cuti->count()) * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y border-l border-stone-400">Eksekutif: {{ $jumlahabsenekse }}</td>
-                            <td class="border-y border-stone-400">
-                            @if ($absenekse>0)    
-                                ({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y border-l border-stone-400">Reguler: {{ $jumlahabsenreg }}</td>
-                            <td class="border-y border-r border-stone-400">
-                            @if ($absenreg>0)    
-                                ({{ round(($jumlahabsenreg / $absenreg * 100),2) }}%)
-                            @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-y border-l border-stone-400">Jumlah Tidak Hadir</td>
-                            <td class="border-y border-stone-400">:
-                                {{ ($absen->count() - $cuti->count() - $jumlahabsen )}}</td>
-                            <td class="border-y border-stone-400">
-                            @if (($absen->count() - $cuti->count()) > 0)
-                                ({{ round((($absen->count() - $cuti->count() - $jumlahabsen ) / ($absen->count() - $cuti->count()) * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y border-l border-stone-400">Eksekutif:
-                                {{ $absenekse - $jumlahabsenekse }}</td>
-                            <td class="border-y border-stone-400">
-                            @if ($absenekse>0)    
-                                ({{ round((($absenekse - $jumlahabsenekse) / $absenekse * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y border-l border-stone-400">Reguler: {{ $absenreg - $jumlahabsenreg }}
-                            </td>
-                            <td class="border-y border-r border-stone-400">
-                            @if ($absenreg>0)    
-                                ({{ round((($absenreg - $jumlahabsenreg) / $absenreg * 100),2) }}%)
-                            @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-y border-l border-stone-400">Terlambat</td>
-                            <td class="border-y border-stone-400">: {{$terlambat}}</td>
-                            <td class="border-y border-stone-400">
-                            @if ($jumlahabsen>0)    
-                                ({{ round(($terlambat / $jumlahabsen * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y border-l border-stone-400">Eksekutif: {{$terlambatekse}}</td>
-                            <td class="border-y border-stone-400">
-                            @if ($jumlahabsenekse>0)    
-                                ({{ round(($terlambatekse / $jumlahabsenekse * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y border-l border-stone-400">Reguler: {{$terlambatreg}}</td>
-                            <td class="border-y border-r border-stone-400">
-                            @if ($jumlahabsenreg)    
-                                ({{ round(($terlambatreg / $jumlahabsenreg * 100),2) }}%)
-                            @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-y border-l border-stone-400">Rata Rata Terlambat</td>
-                            <td class="border-y border-stone-400">: {{ round($avg,2) }}</td>
-                            <td class="border-y border-stone-400">Menit</td>
-                            <td class="border-y  border-l border-stone-400">Eksekutif: {{ round($avgekse,2) }}</td>
-                            <td class="border-y border-stone-400">Menit</td>
-                            <td class="border-y  border-l border-stone-400">Reguler: {{ round($avgreg,2) }}</td>
-                            <td class="border-y border-r border-stone-400">Menit</td>
-                        </tr>
-                        <tr>
-                            <td class="border-y border-l border-stone-400">Terlambat (kumulatif)</td>
-                            <td class="border-y border-stone-400">:
-                                {{ ($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat }}</td>
-                            <td class="border-y border-stone-400">
-                            @if (($absen->count() - $cuti->count()) > 0)    
-                                ({{ round(((($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat)/ ($absen->count() - $cuti->count()) * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y  border-l border-stone-400">Eksekutif:
-                                {{ $absenekse - $jumlahabsenekse + $terlambatekse }}</td>
-                            <td class="border-y border-stone-400">
-                            @if ($absenekse>0)
-                                ({{ round((($absenekse - $jumlahabsenekse + $terlambatekse)/ $absenekse * 100),2) }}%)
-                            @endif
-                            </td>
-                            <td class="border-y  border-l border-stone-400">Reguler:
-                                {{ $absenreg - $jumlahabsenreg + $terlambatreg }}</td>
-                            <td class="border-y border-r border-stone-400">
-                            @if ($absenreg>0)    
-                                ({{ round((($absenreg - $jumlahabsenreg + $terlambatreg)/ $absenreg * 100),2) }}%)
-                            @endif
-                            </td>
-                        </tr>
-                    </table>
+                    <div class="w-[600px]">
+                        <table class="table table-zebra table-xs">
+                            <tr>
+                                <td class="border-y border-l border-stone-400">Jumlah Jadwal</td>
+                                <td class="border-y border-r border-stone-400">: {{ ($absen->count() - $cuti->count()) }}
+                                </td>
+                                <td class="border-y border-l border-r border-stone-400">Eksekutif: {{$absenekse}}</td>
+                                <td class="border-y border-l border-r border-stone-400">Reguler: {{$absenreg}}</td>
+                            </tr>
+                            <tr>
+                                <td class="border-y border-l border-stone-400">Jumlah Kehadiran</td>
+                                <td class="border-y border-stone-400">: {{ $jumlahabsen }}</td>
+                                <td class="border-y border-stone-400">
+                                    @if (($absen->count() - $cuti->count()) > 0)
+                                        ({{ round(($jumlahabsen / ($absen->count() - $cuti->count()) * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y border-l border-stone-400">Eksekutif: {{ $jumlahabsenekse }}</td>
+                                <td class="border-y border-stone-400">
+                                    @if ($absenekse>0)
+                                        ({{ round(($jumlahabsenekse / $absenekse * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y border-l border-stone-400">Reguler: {{ $jumlahabsenreg }}</td>
+                                <td class="border-y border-r border-stone-400">
+                                    @if ($absenreg>0)
+                                        ({{ round(($jumlahabsenreg / $absenreg * 100),2) }}%)
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="border-y border-l border-stone-400">Jumlah Tidak Hadir</td>
+                                <td class="border-y border-stone-400">:
+                                    {{ ($absen->count() - $cuti->count() - $jumlahabsen )}}</td>
+                                <td class="border-y border-stone-400">
+                                    @if (($absen->count() - $cuti->count()) > 0)
+                                        ({{ round((($absen->count() - $cuti->count() - $jumlahabsen ) / ($absen->count() - $cuti->count()) * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y border-l border-stone-400">Eksekutif:
+                                    {{ $absenekse - $jumlahabsenekse }}</td>
+                                <td class="border-y border-stone-400">
+                                    @if ($absenekse>0)
+                                        ({{ round((($absenekse - $jumlahabsenekse) / $absenekse * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y border-l border-stone-400">Reguler: {{ $absenreg - $jumlahabsenreg }}
+                                </td>
+                                <td class="border-y border-r border-stone-400">
+                                    @if ($absenreg>0)
+                                        ({{ round((($absenreg - $jumlahabsenreg) / $absenreg * 100),2) }}%)
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="border-y border-l border-stone-400">Terlambat</td>
+                                <td class="border-y border-stone-400">: {{$terlambat}}</td>
+                                <td class="border-y border-stone-400">
+                                    @if ($jumlahabsen>0)
+                                        ({{ round(($terlambat / $jumlahabsen * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y border-l border-stone-400">Eksekutif: {{$terlambatekse}}</td>
+                                <td class="border-y border-stone-400">
+                                    @if ($jumlahabsenekse>0)
+                                        ({{ round(($terlambatekse / $jumlahabsenekse * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y border-l border-stone-400">Reguler: {{$terlambatreg}}</td>
+                                <td class="border-y border-r border-stone-400">
+                                    @if ($jumlahabsenreg)
+                                        ({{ round(($terlambatreg / $jumlahabsenreg * 100),2) }}%)
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="border-y border-l border-stone-400">Rata Rata Terlambat</td>
+                                <td class="border-y border-stone-400">: {{ round($avg,2) }}</td>
+                                <td class="border-y border-stone-400">Menit</td>
+                                <td class="border-y  border-l border-stone-400">Eksekutif: {{ round($avgekse,2) }}</td>
+                                <td class="border-y border-stone-400">Menit</td>
+                                <td class="border-y  border-l border-stone-400">Reguler: {{ round($avgreg,2) }}</td>
+                                <td class="border-y border-r border-stone-400">Menit</td>
+                            </tr>
+                            <tr>
+                                <td class="border-y border-l border-stone-400">Terlambat (kumulatif)</td>
+                                <td class="border-y border-stone-400">:
+                                    {{ ($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat }}</td>
+                                <td class="border-y border-stone-400">
+                                    @if (($absen->count() - $cuti->count()) > 0)
+                                        ({{ round(((($absen->count() - $cuti->count()) - $jumlahabsen + $terlambat)/ ($absen->count() - $cuti->count()) * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y  border-l border-stone-400">Eksekutif:
+                                    {{ $absenekse - $jumlahabsenekse + $terlambatekse }}</td>
+                                <td class="border-y border-stone-400">
+                                    @if ($absenekse>0)
+                                        ({{ round((($absenekse - $jumlahabsenekse + $terlambatekse)/ $absenekse * 100),2) }}%)
+                                    @endif
+                                </td>
+                                <td class="border-y  border-l border-stone-400">Reguler:
+                                    {{ $absenreg - $jumlahabsenreg + $terlambatreg }}</td>
+                                <td class="border-y border-r border-stone-400">
+                                    @if ($absenreg>0)
+                                        ({{ round((($absenreg - $jumlahabsenreg + $terlambatreg)/ $absenreg * 100),2) }}%)
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                     <div class="wrapper mt-2 overflow-x-auto">
                         <div class="tabs">
                             <button data-id="absen" class="tab tab-lg tab-lifted tab-active">Absen</button>
@@ -254,7 +256,7 @@
             }
             if (id == 'absen') {
                 $("#tdabsen").DataTable();
-            } 
+            }
             if (id == 'tidakabsen') {
                 $("#tdtidakabsen").DataTable();
             }

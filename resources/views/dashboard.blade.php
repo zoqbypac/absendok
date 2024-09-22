@@ -37,7 +37,7 @@
                             <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? "bg-warning" : ""  }}">{{ $item->poliklinik }}</td>
                             <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? "bg-warning" : ""  }}">({{ $item->jam_mulai }} - {{ $item->jam_selesai }}) {{ $item->waktu }}</td>
                             <td class="{{ ($item->jam_masuk == null) ? "" : "bg-success"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? "bg-warning" : ""  }}">{{ ($item->jam_masuk == null) ? "" : "Sudah Absen"  }} {{ (in_array($item->keterangan,['Cuti','Tidak Praktek'])) ? $item->keterangan : ""  }}</td>
-                        </tr>    
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -70,11 +70,11 @@
                 </div>
                 <div class="flex flex-row h-[600px]">
                     <div id="info" class="py-2 px-2 basis-1/2 overflow-y-auto h-full">
-                        
+
                     </div>
                     <div class="py-2 px-2  basis-1/2 h-full">
                         <div  id="chat" class="px-2 overflow-y-auto h-[530px]">
-                            
+
                         </div>
                         <div class="h-1/6">
                             <div class="form-control mt-2">
@@ -84,7 +84,7 @@
                                     <button id="kirim" class="btn btn-accent btn-square">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                                        </svg>  
+                                        </svg>
                                     </button>
                                 </div>
                               </div>
@@ -93,111 +93,115 @@
                 </div>
             </div>
         </div>
-<script>
-    infoBox = document.querySelector("#info")
-    chatBox = document.querySelector("#chat")
-    var bleep = new Audio();
-        bleep.src = '{{ asset('audio/Message Tone.mp3') }}';
-    
-    $("#pesan").keyup(function(event) {
-    if (event.keyCode === 13) {
-        $("#kirim").click();
-    }
-    });
-    
-    $(document).ready(function() {
+    </div>
+        <audio controls id="ding" hidden>
+            <source src="{{ asset('audio/Message Tone.mp3') }}" type="audio/mpeg">
+        </audio>
+    <script>
+        infoBox = document.querySelector("#info")
+        chatBox = document.querySelector("#chat")
+
+        function ding() {
+            const ding = new Audio();
+            ding.src = '{{ asset('audio/Message Tone.mp3') }}';
+            ding.play();
+        }
+
+        $("#pesan").keyup(function (event) {
+            if (event.keyCode === 13) {
+                $("#kirim").click();
+            }
+        });
+        document.addEventListener("DOMContentLoaded", function (event) {
+
+        });
+        $(document).ready(function () {
             isiChat();
             isiInfo();
             scrollInfo();
             scrollChat();
+            Echo.channel(`hello`)
+                .listen('Hello', (e) => {
+                    console.log(e.data);
+                    document.getElementById('ding').play();
+                });
+            Echo.channel(`info-channel`)
+                .listen('InfoEvent', () => {
+                    isiInfo();
+                    document.getElementById('ding').play();
+                });
+            Echo.channel(`chat-channel`)
+                .listen('ChatEvent', () => {
+                    isiChat();
+                    document.getElementById('ding').play();
+                });
         });
 
-    function isiChat() {
-            $.get("{{ route('getchatgroup') }}", {}, function(data, status) {
+        function isiChat() {
+            $.get("{{ route('getchatgroup') }}", {}, function (data) {
                 $("#chat").html(data);
             });
-        fetch("{{ url('cekinfo') }}")
-            .then((response) => response.json())
-            .then((ress) => {
-                chat = ress.chat;
-                info = ress.info;
+        }
+
+        function isiInfo() {
+            $.get("{{ route('getinfo') }}", {}, function (data) {
+                $("#info").html(data);
             });
         }
 
-    function isiInfo() {
-        $.get("{{ route('getinfo') }}", {}, function(data, status) {
-            $("#info").html(data);
+        $("#kirim").click(function () {
+            kirimPesan();
         });
-    }
 
-    $("#kirim").click(function() {
-        kirimPesan();
-    });
-
-    function kirimPesan() {
-            var pesan = $("#pesan").val();
-            if (pesan != "") {
-              $.ajax({
-                type: "get",
-                url: "{{ route('chatgroup') }}",
-                data: "pesan="+pesan,
-                success: function(data) {
-                    $('#pesan').val('');
-                    isiChat();
-                }
-            });  
+        function kirimPesan() {
+            const pesan = $("#pesan").val();
+            if (pesan !== "") {
+                $.ajax({
+                    type: "get",
+                    url: "{{ route('chatgroup') }}",
+                    data: "pesan=" + pesan,
+                    success: function () {
+                        $('#pesan').val('');
+                        isiChat();
+                    }
+                });
             }
         }
-    
-    chatBox.onmouseenter = ()=>{
-        chatBox.classList.add("active");
-    }
 
-    chatBox.onmouseleave = ()=>{
-        chatBox.classList.remove("active");
-    }
-
-    infoBox.onmouseenter = ()=>{
-        infoBox.classList.add("active");
-    }
-
-    infoBox.onmouseleave = ()=>{
-        infoBox.classList.remove("active");
-    }
-    
-    setInterval(() =>{
-        if(!chatBox.classList.contains("active")){
-            scrollChat();
+        chatBox.onmouseenter = () => {
+            chatBox.classList.add("active");
         }
-        fetch("{{ url('cekinfo') }}")
-            .then((response) => response.json())
-            .then((ress) => {
-                
-                if(chat != ress.chat){
-                        bleep.play();
-                        isiChat();
-                    chat = ress.chat;
-                    }
-                if(info != ress.info){
-                        bleep.play();
-                        isiInfo();
-                    info = ress.info;
-                    }
-            });
-        
-        if(!infoBox.classList.contains("active")){
-            scrollInfo();
-        }
-        
-    }, 2000);
-    
-    function scrollInfo(){
-        infoBox.scrollTop = infoBox.scrollHeight;
-    }
 
-    function scrollChat(){
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-</script>
-        
+        chatBox.onmouseleave = () => {
+            chatBox.classList.remove("active");
+        }
+
+        infoBox.onmouseenter = () => {
+            infoBox.classList.add("active");
+        }
+
+        infoBox.onmouseleave = () => {
+            infoBox.classList.remove("active");
+        }
+
+        setInterval(() => {
+            if (!chatBox.classList.contains("active")) {
+                scrollChat();
+            }
+
+            if (!infoBox.classList.contains("active")) {
+                scrollInfo();
+            }
+
+        }, 1000);
+
+        function scrollInfo() {
+            infoBox.scrollTop = infoBox.scrollHeight;
+        }
+
+        function scrollChat() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+
 </x-app-layout>

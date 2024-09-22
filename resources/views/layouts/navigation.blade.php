@@ -29,26 +29,46 @@
                         {{ __('Jadwal Dokter') }}
                     </x-nav-link>
                 </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('mappingpoli')" :active="request()->routeIs('mappingpoli')">
-                        {{ __('Mapping Poli') }}
-                    </x-nav-link>
-                </div>
                 @endif
                 @if (in_array(Auth::user()->department, ['IT Support','Bagian Mutu dan Akreditasi','Direksi RS','Bagian Personalia']))
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('rekapabsen')" :active="request()->routeIs('rekapabsen')">
-                        {{ __('Absensi') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('rekapabsendok')" :active="request()->routeIs('rekapabsendok')">
-                        {{ __('Absensi Per Dokter') }}
-                    </x-nav-link>
-                </div>
+                    <div class="hidden sm:flex sm:items-center sm:ml-6">
+                        <x-dropdown width="48">
+                            <x-slot name="trigger">
+                                <button
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                    <div>{{ __('Absensi') }}</div>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('rekapabsen')">
+                                    {{ __('Absensi') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('rekapabsendok')">
+                                    {{ __('Absensi Per Dokter') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('rekapabsenpoli')">
+                                    {{ __('Absensi Per Poli') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('rekapabsenns')">
+                                    {{ __('Absensi Per NS') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('jenis.alasan')">
+                                    {{ __('Jenis Alasan') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('index.ns')">
+                                    {{ __('Master NS') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('index.mappingns')">
+                                    {{ __('Mapping NS') }}
+                                </x-dropdown-link>
+
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
                 @endif
             </div>
-            
+
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6">
@@ -74,7 +94,7 @@
                             {{ __('Daftar User') }}
                         </x-dropdown-link>
                         @endif
-                        
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -119,7 +139,7 @@
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Ubah Password') }}
-                </x-response-nav-link>
+                </x-responsive-nav-link>
                 @if (Auth::user()->department == 'IT Support')
                 <x-dropdown-link :href="route('daftaruser')">
                     {{ __('Daftar User') }}

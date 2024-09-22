@@ -2,23 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\AbsensiEksport;
+use App\Events\ChatEvent;
+use App\Events\InfoEvent;
 use App\Exports\AbsendokEksport;
+use App\Exports\AbsenpoliEksport;
+use App\Exports\AbsensiEksport;
+use App\Exports\AbsensinsEksport;
 use App\Exports\JadwalDokterEksport;
 use App\Imports\JadwalDokterImport;
 use App\Models\Absensi;
+use App\Models\AlasanTelat;
 use App\Models\CutiDokter;
 use App\Models\Info;
 use App\Models\JadwalDokter;
+use App\Models\KirimAbsen;
+use App\Models\MappingNS;
 use App\Models\MapPoli;
+use App\Models\NurseStation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AbsendokController extends Controller
 {
@@ -28,9 +36,12 @@ class AbsendokController extends Controller
         $hari_ini = Carbon::now()->isoFormat('dddd');
 
 
+
         //cek jadwal
+
         $cekjadwal = JadwalDokter::where('hari', 'like', $hari_ini)->get();
         $cekabsensi = Absensi::where('tanggal', $tanggal_ini)->get();
+        $cekkirim = KirimAbsen::where('tanggal', $tanggal_ini)->count();
         if ($cekjadwal->count() > $cekabsensi->count()) {
             foreach ($cekjadwal as $jadwal) {
                 Absensi::updateOrCreate([
@@ -45,6 +56,15 @@ class AbsendokController extends Controller
                     'jam_mulai' => $jadwal->jam_mulai,
                     'jam_selesai' => $jadwal->jam_selesai,
                 ]);
+            }
+        }
+        if ($cekkirim != $cekabsensi->count()){
+            foreach ($cekabsensi as $cka){
+                DB::connection('pgsql')->table('absen_kirim')
+                    ->insertOrIgnore([
+                        'absenid' => $cka->absenid,
+                        'tanggal' => $cka->tanggal,
+                    ]);
             }
         }
 
@@ -122,6 +142,11 @@ class AbsendokController extends Controller
                 'pesan' => $jadwal->namadokter . ' Praktik di ' . $jadwal->poliklinik,
                 'created_at' => now()
             ]);
+            if ($status == 'Terlambat'){
+                $alasan = AlasanTelat::orderBy('id')->get();
+                return view('absendok.alasan', compact('jadwal','alasan'));
+            }
+            broadcast(new InfoEvent());
             return redirect('dashboard');
         }
 
@@ -143,6 +168,7 @@ class AbsendokController extends Controller
             'pesan' => $data[0]->namadokter . ' Selesai Praktik di ' . $data[0]->poliklinik,
             'created_at' => now()
         ]);
+        broadcast(new InfoEvent());
 
         return redirect('dashboard');
     }
@@ -190,6 +216,7 @@ class AbsendokController extends Controller
             $absen = DB::connection('pgsql')
                 ->table('absensi')
                 ->join('map_poli', 'absensi.poliklinik', '=', 'map_poli.poliklinik')
+                ->where('map_poli.kategori','!=',null)
                 ->whereDate('tanggal', '>=', $request->input('dari') ?? $tanggal_ini)
                 ->whereDate('tanggal', '<=', $request->input('sampai') ?? $tanggal_ini)
                 ->get();
@@ -335,6 +362,85 @@ class AbsendokController extends Controller
         }
     }
 
+    public function rekapabsenpoli(Request $request)
+    {
+        $tanggal_ini = Carbon::today();
+        $poli = JadwalDokter::distinct()->orderBy('poliklinik')->get('poliklinik');
+        $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
+        if ($cekcuti->count() > 0) {
+            foreach ($cekcuti as $cuti) {
+                Absensi::where([
+                    ['tanggal', $tanggal_ini],
+                    ['kodedokter', $cuti->kodedokter]
+                ])
+                    ->update([
+                        'keterangan' => $cuti->keterangan,
+                    ]);
+            }
+        }
+        if ($request->input('dari') > $request->input('sampai')) {
+            return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
+        }
+
+        if ($request->poli){
+            $absensi = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->where('poliklinik',$request->poli)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)
+                ->get();
+            $namadokter = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->where('poliklinik',$request->poli)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)->distinct()->get('namadokter');
+        } else{
+            $absensi ="";
+            $namadokter = "";
+        }
+        $alasan = AlasanTelat::all();
+        return view('absendok.rekappoli', compact('poli', 'absensi', 'namadokter','alasan'));
+    }
+    public function rekapabsenns(Request $request)
+    {
+        $tanggal_ini = Carbon::today();
+        $ns = NurseStation::all();
+        $cekcuti = CutiDokter::whereDate('tglawal', '<=', $tanggal_ini)->whereDate('tglakhir', '>=', $tanggal_ini)->get();
+        if ($cekcuti->count() > 0) {
+            foreach ($cekcuti as $cuti) {
+                Absensi::where([
+                    ['tanggal', $tanggal_ini],
+                    ['kodedokter', $cuti->kodedokter]
+                ])
+                    ->update([
+                        'keterangan' => $cuti->keterangan,
+                    ]);
+            }
+        }
+        if ($request->input('dari') > $request->input('sampai')) {
+            return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
+        }
+
+        if ($request->ns){
+            $map_ns = MappingNS::where('ns', $request->ns)->get('poliklinik');
+            $absensi = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->whereIn('poliklinik',$map_ns)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)
+                ->get();
+            $namadokter = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->whereIn('poliklinik',$map_ns)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)->distinct()->get('namadokter');
+        } else{
+            $absensi ="";
+            $namadokter = "";
+        }
+        $alasan = AlasanTelat::all();
+        return view('absendok.rekapns', compact('ns', 'namadokter', 'absensi', 'alasan'));
+    }
     public function chatgroup(Request $request)
     {
         DB::connection('pgsql')
@@ -345,6 +451,7 @@ class AbsendokController extends Controller
                 'pesan' => $request->input('pesan'),
                 'created_at' => now()
             ]);
+        broadcast(new ChatEvent());
     }
     public function getchatgroup(Request $request)
     {
@@ -461,6 +568,63 @@ class AbsendokController extends Controller
         } else {
             return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
         }
+    }
+
+    public function exportpoli(Request $request)
+    {
+        if ($request->input('dari') > $request->input('sampai')) {
+            return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
+        }
+
+        if ($request->poli){
+            $absensi = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->where('poliklinik',$request->poli)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)
+                ->get();
+            $namadokter = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->where('poliklinik',$request->poli)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)->distinct()->get('namadokter');
+        } else{
+            $absensi ="";
+            $namadokter = "";
+        }
+        $poli = $request->poli;
+        $tanggal = Carbon::parse($request->input('dari'))->isoFormat('DD MMMM YYYY') . ' - ' . Carbon::parse($request->input('sampai'))->isoFormat('DD MMMM YYYY');
+        $alasan = AlasanTelat::all();
+        return Excel::download(new AbsenpoliEksport($poli, $tanggal, $absensi, $namadokter, $alasan),'Absensi ' .$request->poli .' '.$tanggal . '.xlsx');
+    }
+
+    public function exportns(Request $request)
+    {
+        if ($request->input('dari') > $request->input('sampai')) {
+            return Redirect::back()->withErrors(['msg' => 'Tanggal tidak boleh Lebih kecil dari sebelumnya']);
+        }
+
+        if ($request->ns){
+            $map_ns = MappingNS::where('ns', $request->ns)->get('poliklinik');
+            $absensi = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->whereIn('poliklinik',$map_ns)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)
+                ->get();
+            $namadokter = DB::connection('pgsql')->table('absensi')
+                ->join('absen_kirim','absensi.absenid','=','absen_kirim.absenid')
+                ->whereIn('poliklinik',$map_ns)
+                ->whereDate('absensi.tanggal', '>=', $request->dari)
+                ->whereDate('absensi.tanggal', '<=', $request->sampai)->distinct()->get('namadokter');
+        } else{
+            $absensi ="";
+            $namadokter = "";
+        }
+        $ns = NurseStation::where('kodens', $request->ns)->get();
+        $tanggal = Carbon::parse($request->input('dari'))->isoFormat('DD MMMM YYYY') . ' - ' . Carbon::parse($request->input('sampai'))->isoFormat('DD MMMM YYYY');
+        $alasan = AlasanTelat::all();
+        return Excel::download(new AbsensinsEksport($ns[0]->namans, $tanggal, $absensi, $namadokter, $alasan),'Absensi ' .$ns[0]->namans .' '.$tanggal . '.xlsx');
     }
 
     public function jadwal()
@@ -680,4 +844,5 @@ class AbsendokController extends Controller
 
         return view('absendok.ubahjadwal', compact('dokter', 'poliklinik'));
     }
+
 }
