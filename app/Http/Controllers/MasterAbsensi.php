@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\InfoEvent;
+use App\Models\Absensi;
 use App\Models\AlasanTelat;
+use App\Models\Info;
 use App\Models\JadwalDokter;
 use App\Models\KirimAbsen;
 use App\Models\MappingNS;
 use App\Models\NurseStation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -59,11 +63,29 @@ class MasterAbsensi extends Controller
     public function alasanterlambat(Request $request, string $id)
     {
         $alasan = AlasanTelat::find($request->alasan);
+        $jadwal = Absensi::where('absenid', $id)->latest()->first();
         KirimAbsen::where('absenid',$id)->update([
             'status' => $alasan->jenis_telat,
             'eksklusi' => $alasan->eksklusi
         ]);
-        return redirect()->route('dashboard');
+        Absensi::where([
+            ['absenid', $id],
+            ['tanggal', Carbon::today()]
+        ])
+            ->update([
+                'jam_masuk' => Carbon::now()->isoFormat('HH:mm'),
+                'selisih_masuk' => (strtotime(Carbon::now()->isoFormat('HH:mm')) - strtotime($jadwal->jam_mulai)) / 60,
+                'keterangan' => 'Terlambat',
+            ]);
+        Info::insert([
+            'userid' => $jadwal->kodedokter,
+            'waktu' => now(),
+            'pesan' => $jadwal->namadokter . ' Praktik di ' . $jadwal->poliklinik,
+            'created_at' => now()
+        ]);
+
+        broadcast(new InfoEvent());
+        return redirect('dashboard');
     }
 
     public function ns()

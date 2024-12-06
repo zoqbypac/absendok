@@ -127,6 +127,11 @@ class AbsendokController extends Controller
                 $status = null;
             }
 
+            if ($status == 'Terlambat'){
+                $alasan = AlasanTelat::orderBy('id')->get();
+                return view('absendok.alasan', compact('jadwal','alasan'));
+            }
+
             Absensi::where([
                 ['absenid', $request->input('jadwal')],
                 ['tanggal', Carbon::today()]
@@ -142,10 +147,7 @@ class AbsendokController extends Controller
                 'pesan' => $jadwal->namadokter . ' Praktik di ' . $jadwal->poliklinik,
                 'created_at' => now()
             ]);
-            if ($status == 'Terlambat'){
-                $alasan = AlasanTelat::orderBy('id')->get();
-                return view('absendok.alasan', compact('jadwal','alasan'));
-            }
+
             broadcast(new InfoEvent());
             return redirect('dashboard');
         }
