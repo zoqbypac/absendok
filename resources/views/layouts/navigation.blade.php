@@ -62,7 +62,9 @@
                                 <x-dropdown-link :href="route('index.mappingns')">
                                     {{ __('Mapping NS') }}
                                 </x-dropdown-link>
-
+                                <x-dropdown-link :href="route('mappingpoli')">
+                                    {{ __('Mapping Poli') }}
+                                </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
                     </div>
